@@ -50,7 +50,6 @@ public class User implements Serializable {
     }
 
     // This method is overridden so that the object id will be tied to the DATABASE record id.
-    // 2nd comment
     @Override
     public int hashCode() {
         return Objects.hash(id);
