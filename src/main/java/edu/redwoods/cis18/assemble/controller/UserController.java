@@ -1,7 +1,7 @@
 package edu.redwoods.cis18.assemble.controller;
 
 import edu.redwoods.cis18.assemble.model.User;
-import edu.redwoods.cis18.assemble.model.UserRepository;
+import edu.redwoods.cis18.assemble.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

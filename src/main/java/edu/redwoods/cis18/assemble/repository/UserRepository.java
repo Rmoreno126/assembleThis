@@ -1,5 +1,6 @@
-package edu.redwoods.cis18.assemble.model;
+package edu.redwoods.cis18.assemble.repository;
 
+import edu.redwoods.cis18.assemble.model.User;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
