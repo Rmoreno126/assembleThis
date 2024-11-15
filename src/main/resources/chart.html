@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mermaid Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+  <style>
+    .container {
+        display: flex;
+    }
+    .box {
+        flex: 1;
+        width: 50%;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+        padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <button id="btnAdd" name="btnAdd">ADD</button>
+  <button id="btnRemove" name="btnRemove">REMOVE</button>
+  <input type="number" id="txtData" name="txtData" min="0" step="1">
+  <button id="btnReset" name="btnRemove">RESET TREE</button>
+  <div class="container">
+    <div class="box">
+      <h2>Binary Tree SVG</h2>
+      <div id="viewData"></div>
+      <div id="viewGraph"></div>
+    </div>
+    <div class="box">
+      <h2>Binary Tree Text Graph</h2>
+      <pre id="txtGraph"></pre>
+    </div>
+  </div>
+  <script>
+    // Host and Port of Binary Tree SpringBoot Server
+    const baseURL = 'http://localhost:8080/btree'
+
+    // Event to be triggered when a refresh is necessary.
+    const refreshEvent = new Event('refreshEvent');
+
+    // Reference to the view element
+    const viewGraph = document.getElementById("viewGraph");
+    // Get the txtGraph text-box for our API response text
+    const txtGraph = document.getElementById("txtGraph");
+    // Reference to the add button
+    const btnAdd = document.getElementById("btnAdd");
+    // Reference to the remove button
+    const btnRemove = document.getElementById("btnRemove");
+    // Reference to the reset button
+    const btnReset = document.getElementById("btnReset");
+    // Reference to the data text-box element
+    const txtData = document.getElementById("txtData");
+    // Reference to the data div to report things like node count element
+    const viewData = document.getElementById("viewData");
+
+    function apiCall(url, callback) {
+          fetch(url)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.json();
+            })
+            .then(data => {
+              if (data.response === 'SUCCESS') {
+                if(callback) { callback(data); }
+              } else {
+                alert('Error: Response was not successful');
+              }
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+                alert('Fetch Error');
+            });
+    }
+    function validateTxtData(event) {
+        const value = txtData.value;
+        if (!Number.isInteger(parseFloat(value))) {
+            txtData.setCustomValidity("Please enter an integer.");
+            return false;
+        } else {
+            txtData.setCustomValidity("");
+        }
+        return true;
+    }
+    function addHandler(event) {
+        if(validateTxtData(event)) {
+          apiCall(baseURL+'/add?data='+txtData.value, (data) => {
+              viewGraph.dispatchEvent(refreshEvent);
+          });
+        }
+    }
+    function removeHandler(event) {
+        if(validateTxtData(event)) {
+          apiCall(baseURL + '/remove?data='+txtData.value, (data) => {
+              viewGraph.dispatchEvent(refreshEvent);
+          });
+        }
+    }
+    function resetHandler(event) {
+        if(validateTxtData(event)) {
+          apiCall(baseURL + '/reset', (data) => {
+              viewGraph.dispatchEvent(refreshEvent);
+          });
+        }
+    }
+    function updateView(event) {
+        apiCall(baseURL + '/view', (data) => {
+            //console.log(data.graph);
+            txtGraph.innerHTML = data.graph;
+            mermaid.render('binaryTree', data.graph).then((svg) => {
+                //@TODO: This doesn't handle bindFunctions for click events
+                viewGraph.innerHTML = svg.svg;
+            });
+            viewData.innerHTML = "<h4>Node Count: " + data.nodeCount + "</h4>";
+        });
+    }
+
+    viewGraph.addEventListener('refreshEvent', updateView);
+    btnAdd.addEventListener('click', addHandler);
+    btnRemove.addEventListener('click', removeHandler);
+    btnReset.addEventListener('click', resetHandler);
+
+    mermaid.initialize({ securityLevel: 'loose', startOnLoad: false });
+  </script>
+</body>
+</html>
