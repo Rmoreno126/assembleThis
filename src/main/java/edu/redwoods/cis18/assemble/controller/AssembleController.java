@@ -2,8 +2,10 @@ package edu.redwoods.cis18.assemble.controller;
 
 // Will contain the controllers to handle web requests
 
+import edu.redwoods.cis18.assemble.RegistrationForm;
+import edu.redwoods.cis18.assemble.model.Business;
+import edu.redwoods.cis18.assemble.model.Event;
 import edu.redwoods.cis18.assemble.model.Game;
-import edu.redwoods.cis18.assemble.model.StoreItem;
 import edu.redwoods.cis18.assemble.service.GameService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,9 +25,9 @@ public class AssembleController {
         return gameService.getAllGames();
     }
 
-    @GetMapping("/store-items")
-    public List<StoreItem> getStoreItems() {
-        // Fetch store items data from the database or service
+    @GetMapping("/stores")
+    public List<Business> getStore() {
+        // Fetch stores data from the database or service
         return storeService.getAllStoreItems();
     }
 
