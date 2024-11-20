@@ -1,6 +1,6 @@
 package edu.redwoods.cis18.assemble.controller;
 
-import edu.redwoods.cis18.assemble.RegistrationForm;
+import edu.redwoods.cis18.assemble.model.RegistrationForm;
 import edu.redwoods.cis18.assemble.model.Business;
 import edu.redwoods.cis18.assemble.model.Event;
 import edu.redwoods.cis18.assemble.model.Game;
