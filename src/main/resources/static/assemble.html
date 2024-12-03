@@ -109,63 +109,6 @@
 <canvas id="userChart" width="400" height="200"></canvas>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    async function fetchUsers() {
-        try {
-            const response = await fetch('/api/users');
-            const users = await response.json();
-            const userNames = users.map(user => user.name);
-            const userEmails = users.map(user => user.email.length);
-
-            const ctx = document.getElementById('userChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: userNames,
-                    datasets: [{
-                        label: '# of Characters in Email',
-                        data: userEmails,
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        } catch (error) {
-            console.error('Error fetching users:', error);
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', fetchUsers);
-
-    document.addEventListener("DOMContentLoaded", function() {
-        fetchGames();
-        fetchStoreItems();
-        fetchEvents();
-
-        function fetchGames() {
-            fetch('/games')
-                .then(response => response.json())
-                .then(data => {
-                    const gamesContainer = document.querySelector('.games');
-                    gamesContainer.innerHTML = data.map(game => `
-                        <div class="game-list">
-                            <img src="${game.imageUrl}" alt="${game.title}" style="width:100px; height: 100px;"/>
-                            <h3>${game.title}</h3>
-                        </div>
-                    `).join('');
-                });
-        }
-
-        function fetchStoreItems() {
-            fetch('/store')
-                .then(response => response.json())
-                .then(data => {
-[_{{{CITATION{{{_1{](https://github.com/KevinMP532/trabajo-prog/tree/5d4e28d8fab39f85d47b66e8ed85376c801ee92b/agenda-covid%2Ffrontend%2Fborrar%2Fborrar.php)[_{{{CITATION{{{_2{](https://github.com/FemiFatokun03/secure-quiz-webapp/tree/773b7b27df7eff92becae3a36d07c40694c5c5d5/login.php)[_{{{CITATION{{{_3{](https://github.com/MuriloHM/Exercicios/tree/2838f19fc40928911c4da042ab009605642411a4/Exerc%C3%ADcios%20de%20PHP%2FAgenda03%2FvoceNoComando.php)[_{{{CITATION{{{_4{](https://github.com/CMSC495Project/FirearmsDatabase/tree/9767eceda704fd451fa7af3f029432698da4c542/Website%2FCMSC495_Home.php)[_{{{CITATION{{{_5{](https://github.com/Aditi009/Assignment-Help/tree/641fef9992490c31637dcb23d366cba112ebedcc/resources%2Fviews%2Fuser%2Flayout%2Fassignment_user.blade.php)[_{{{CITATION{{{_6{](https://github.com/GDThumar2409/phpproject/tree/c83b64024aa9025a537fce216d4f20d1b83de13a/requests.php)[_{{{CITATION{{{_7{](https://github.com/LaianeLiboni/Desenvolvimento_De_Sistemas_ETEC/tree/ef1eca3fed81ca6103d3c8d13a3689eeb1f2b151/Agenda6%2F1%2Flistar.php)[_{{{CITATION{{{_8{](https://github.com/MNiT-185/Movie-Web/tree/d328f0ae2366124f23f573889d36aaa00a27b21e/webProject%2Fkhophimyeuthich.php)[_{{{CITATION{{{_9{](https://github.com/justine-135/Tupc-Ecafeteria---php/tree/20a36d4775ad297fe78e69fa733e3ee593c28442/search_addons.php)[_{{{CITATION{{{_10{](https://github.com/grant-gregory/py-webapp/tree/868f37bb0c8b1e6dd027058110e0edb420f54ce7/GWGpage.py)[_{{{CITATION{{{_11{](https://github.com/rizalludin/TubesPW-Perbasi/tree/37eb0a47e168fa8b6bd75117e0da8c778d678141/TubesRizalludin%2Findex.php)[_{{{CITATION{{{_12{](https://github.com/islamharby/Pharco-ER-Bundle/tree/2e38e36915b58d642ea38af41abc7e424049c002/resources%2Fviews%2Fdashboard%2Freports%2Findex.blade.php)
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+/* style.css */
+
+/* Add your custom styles here */
+body {
+    font-family: Arial, sans-serif;
+}
+
+.header {
+    background-color: #000015;
+}
+
+.heeder-large-screen .w3-bar-item {
+    color: #fff;
+}
+
+.hero {
+    background-color: #282A35;
+    color: white;
+    padding: 50px 20px;
+    text-align: center;
+}
+
+.hero-title {
+    font-size: 48px;
+}
+
+.social .icons {
+    margin: 0 10px;
+    font-size: 24px;
+}
+
+.title {
+    font-size: 36px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.game-list {
+    display: flex;
+    align-items: center;
+    margin: 10px;
+}
+
+.game-list img {
+    width: 100px;
+    height: 100px;
+    margin-right: 20px;
+}
+
+.contact-list {
+    margin: 20px;
+}
+
+.contact-address p {
+    margin: 5px 0;
+}
+
+/* Add more custom styles as needed */

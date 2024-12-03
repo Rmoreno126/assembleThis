@@ -1,4 +1,4 @@
-package edu.redwoods.cis18.assemble.service;
+package edu.redwoods.cis18.assemble;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
