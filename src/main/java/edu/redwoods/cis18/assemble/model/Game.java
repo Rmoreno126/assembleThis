@@ -34,6 +34,7 @@ public class Game implements Serializable {
     private Integer id;
     private String name;
     private String type;
+    private String imageUrl;
 
     public Integer getId() {
         return id;
@@ -57,6 +58,16 @@ public class Game implements Serializable {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    //image URL in the database
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     // This method is overridden so that the DATABASE record id is used for comparing object equality

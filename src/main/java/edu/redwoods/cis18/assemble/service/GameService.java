@@ -51,6 +51,7 @@ public class GameService {
         Game game = gameRepository.findById(id).orElseThrow(() -> new RuntimeException("Game not found"));
         game.setName(gameDetails.getName());
         game.setType(gameDetails.getType());
+        game.setImageUrl(gameDetails.getImageUrl());
         return gameRepository.save(game);
     }
 
