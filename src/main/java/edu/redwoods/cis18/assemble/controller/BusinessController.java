@@ -23,4 +23,20 @@ public class BusinessController {
     public Business createBusiness(@RequestBody Business business) {
         return businessService.createBusiness(business);
     }
+
+    @GetMapping("/location")
+    public List<Business> getStoresByLocation(@RequestParam String location) {
+        return businessService.findStoreByLocation(location);
+    }
+
+    @GetMapping("/name")
+    public Business getStoreByName(@RequestParam String name) {
+        return businessService.findStoreByName(name);
+    }
+
+    @GetMapping("/category")
+    public List<Business> getStoresByCategory(@RequestParam String category) {
+        return businessService.findStoreByCategory(category);
+    }
+
 }

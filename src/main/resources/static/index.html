@@ -40,7 +40,7 @@
             <div class="hero-text">
                 <h1 class="hero-title">Adding Fun to your Life</h1>
                 <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Officiis, impedit quo. Officia nisi corrupti iste asperiores accusamus quisquam quod perspiciatis vitae? Esse eum molestiae ab quasi omnis quidem officia eaque.</p>
-                <span class="w3-text-white social" style="margin-top:050px">
+                <span class="w3-text-white social" style="margin-top:50px">
                     <p>Follow us on Social media</p>
                     <div class="w3-margin-top">
                         <a href="#"><i class="fa fa-facebook-official w3-hover-opacity icons"></i></a>
@@ -69,18 +69,58 @@
         <input type="text" id="gameImageUrl" placeholder="Image URL">
         <button onclick="addGame()">Add Game</button>
     </div>
+
     <div class="store" id="shop">
-        <h2 class="title">Our Store</h2>
-        <div class="game-store">
-            <!-- Store items will be dynamically populated here -->
+        <h2 class="title">Find Your Store</h2>
+        <div>
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location">
+            <button onclick="findStoreByLocation()">Search by Location</button>
         </div>
+        <div>
+            <label for="name">Store Name:</label>
+            <input type="text" id="name" name="name">
+            <button onclick="findStoreByName()">Search by Name</button>
+        </div>
+        <div>
+            <label for="category">Category:</label>
+            <input type="text" id="category" name="category">
+            <button onclick="findStoreByCategory()">Search by Category</button>
+        </div>
+        <div>
+            <button onclick="getAllStores()">Get All Stores</button>
+        </div>
+        <div id="store-results"></div>
     </div>
+
+    <!-- Form for creating a business profile -->
+    <div class="create-business" id="create-business">
+        <h2 class="title">Create Business Profile</h2>
+        <form id="create-business-form">
+            <div>
+                <label for="businessName">Business Name:</label>
+                <input type="text" id="businessName" name="businessName" required>
+            </div>
+            <div>
+                <label for="businessLocation">Location:</label>
+                <input type="text" id="businessLocation" name="businessLocation" required>
+            </div>
+            <div>
+                <label for="businessCategory">Category:</label>
+                <input type="text" id="businessCategory" name="businessCategory" required>
+            </div>
+            <button type="submit">Create Profile</button>
+        </form>
+        <div id="message"></div>
+    </div>
+
     <div class="event" id="events">
         <h2 class="title">Upcoming Events</h2>
         <div class="event-hero" style="position: relative;">
             <!-- Events will be dynamically populated here -->
         </div>
     </div>
+
     <div>
         <h2 class="title">Reach out to us</h2>
         <div class="contact" id="contact" style="padding-bottom: 10px !important;">
