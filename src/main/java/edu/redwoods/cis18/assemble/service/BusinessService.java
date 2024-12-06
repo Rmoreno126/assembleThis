@@ -10,35 +10,34 @@ import java.util.List;
 @Service
 public class BusinessService {
 
+    private final BusinessRepository businessRepository;
+
     @Autowired
-    private BusinessRepository businessRepository;
-
-
-    private List<Business> businesses;
-
+    public BusinessService(BusinessRepository businessRepository) {
+        this.businessRepository = businessRepository;
+    }
 
     public List<Business> getAllBusinesses() {
-        return List.of();
+        return businessRepository.findAll();
     }
 
     public Business createBusiness(Business business) {
-        return null;
-    }
-
-    public List<Business> findStoreByLocation(String location) {
-        return Business.findStoreByLocation(businesses, location);
-    }
-
-    public Business findStoreByName(String name) {
-        return Business.findStoreByName(businesses, name);
-    }
-
-    public List<Business> findStoreByCategory(String category) {
-        return Business.findStoreByCategory(businesses, category);
-    }
-
-    public Business createBusinessProfile(Business business) {
         return businessRepository.save(business);
     }
 
+    public List<Business> findStoreByLocation(String location) {
+        return businessRepository.findByLocation(location);
+    }
+
+    public List<Business> findStoreByName(String name) {
+        List<Business> businesses = businessRepository.findAllByName(name);
+        if (businesses.isEmpty()) {
+            throw new RuntimeException("No businesses found with name: " + name);
+        }
+        return businesses;
+    }
+
+    public List<Business> findStoreByCategory(String category) {
+        return businessRepository.findByCategory(category);
+    }
 }

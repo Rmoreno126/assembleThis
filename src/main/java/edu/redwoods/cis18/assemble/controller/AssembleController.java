@@ -4,8 +4,8 @@ import edu.redwoods.cis18.assemble.model.RegistrationForm;
 import edu.redwoods.cis18.assemble.model.Business;
 import edu.redwoods.cis18.assemble.model.Event;
 import edu.redwoods.cis18.assemble.model.Game;
+import edu.redwoods.cis18.assemble.service.BusinessService;
 import edu.redwoods.cis18.assemble.service.GameService;
-import edu.redwoods.cis18.assemble.service.StoreService;  // Import the StoreService
 import edu.redwoods.cis18.assemble.service.EventService;  // Ensure EventService is imported if required
 import edu.redwoods.cis18.assemble.service.RegistrationService;  // Ensure RegistrationService is imported if required
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class AssembleController {
     private GameService gameService;  // Injecting GameService
 
     @Autowired
-    private StoreService storeService;  // Injecting StoreService to get business data
+    private BusinessService businessService;  // Injecting StoreService to get business data
 
     @Autowired
     private EventService eventService;  // Injecting EventService (make sure it exists)
@@ -38,10 +38,10 @@ public class AssembleController {
         return gameService.getAllGames();
     }
 
-    @GetMapping("/stores")
+    @GetMapping("/business")
     public List<Business> getStores() {
         // Fetch store/business data from the service
-        return storeService.getAllBusinesses();  // This will now work because storeService is injected
+        return businessService.getAllBusinesses();  // This will now work because storeService is injected
     }
 
     @GetMapping("/events")

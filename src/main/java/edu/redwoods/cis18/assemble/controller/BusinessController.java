@@ -3,12 +3,13 @@ package edu.redwoods.cis18.assemble.controller;
 import edu.redwoods.cis18.assemble.model.Business;
 import edu.redwoods.cis18.assemble.service.BusinessService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/businesses")
+@RequestMapping("/api/business")
 public class BusinessController {
 
     @Autowired
@@ -19,10 +20,16 @@ public class BusinessController {
         return businessService.getAllBusinesses();
     }
 
-    @PostMapping
-    public Business createBusiness(@RequestBody Business business) {
+    /*@PostMapping("/addBusiness")
+    public Business addBusiness(@RequestBody Business business) {
         return businessService.createBusiness(business);
+    }*/
+    @PostMapping("/addBusiness")
+    public ResponseEntity<Business> addBusiness(@RequestBody Business business) {
+        Business savedBusiness = businessService.createBusiness(business);
+        return ResponseEntity.ok(savedBusiness);
     }
+
 
     @GetMapping("/location")
     public List<Business> getStoresByLocation(@RequestParam String location) {
@@ -30,7 +37,7 @@ public class BusinessController {
     }
 
     @GetMapping("/name")
-    public Business getStoreByName(@RequestParam String name) {
+    public List<Business> getStoreByName(@RequestParam String name) {
         return businessService.findStoreByName(name);
     }
 

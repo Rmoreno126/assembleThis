@@ -3,8 +3,19 @@
 document.addEventListener('DOMContentLoaded', function() {
     fetchUsers();
     fetchGames();
+    fetchStoreItems();
+    fetchEvents();
 
-    fetch('/store')
+    // Add event listener for the Create Business Profile form
+    const createBusinessForm = document.getElementById('create-business-form');
+    createBusinessForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        createBusinessProfile();
+    });
+});
+
+function fetchStoreItems() {
+    fetch('/api/store')
         .then(response => response.json())
         .then(data => {
             const storeContainer = document.querySelector('.game-store');
@@ -16,27 +27,22 @@ document.addEventListener('DOMContentLoaded', function() {
             `).join('');
         })
         .catch(error => console.error('Error fetching store items:', error));
+}
 
-    fetch('/events')
+function fetchEvents() {
+    fetch('/api/events')
         .then(response => response.json())
         .then(data => {
             const eventsContainer = document.querySelector('.event-hero');
             eventsContainer.innerHTML = data.map(event => `
                 <div class="event-list">
-                    <img src="${event.imageUrl}" alt="${event.title}" style="width:100px; height: 100px;"/>
+                    <img src="${event.imageUrl}" alt="${event.name}" style="width:100px; height: 100px;"/>
                     <h3>${event.title}</h3>
                 </div>
             `).join('');
         })
         .catch(error => console.error('Error fetching events:', error));
-
-    // Add event listener for the Create Business Profile form
-    const createBusinessForm = document.getElementById('create-business-form');
-    createBusinessForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-        createBusinessProfile();
-    });
-});
+}
 
 function fetchGames() {
     fetch('/api/games')
@@ -128,102 +134,178 @@ async function fetchUsers() {
     }
 }
 
-// New store-related functions
+// Fetch stores from the API
 async function fetchStores(url) {
     try {
         const response = await fetch(url);
+
+        // Check if the response is OK (status 200-299)
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
+        console.log('Fetched stores:', data); // Log the fetched data for debugging
         displayStores(data);
     } catch (error) {
         console.error('Error fetching data:', error);
+        const resultsDiv = document.getElementById('store-results');
+        resultsDiv.innerHTML = `<p>Error fetching data: ${error.message}</p>`;
     }
 }
 
+// Fetch store by location
 function findStoreByLocation() {
-    const location = document.getElementById('location').value;
-    const url = `/businesses/location?location=${encodeURIComponent(location)}`;
+    const locationInput = document.getElementById('storeLocation'); // Correct ID
+    if (!locationInput) {
+        alert('Location input field is missing from the DOM');
+        return;
+    }
+
+    const location = locationInput.value.trim();
+    if (!location) {
+        alert('Please enter a location');
+        return;
+    }
+
+    const url = `/api/business/location?location=${encodeURIComponent(location)}`;
     fetchStores(url);
 }
 
+// Fetch store by name
 function findStoreByName() {
-    const name = document.getElementById('name').value;
-    const url = `/businesses/name?name=${encodeURIComponent(name)}`;
+    const nameInput = document.getElementById('storeName'); // Use the correct ID
+    if (!nameInput) {
+        alert('Name input field is missing from the DOM');
+        return;
+    }
+
+    const name = nameInput.value.trim();
+    if (!name) {
+        alert('Please enter a name');
+        return;
+    }
+
+    const url = `/api/business/name?name=${encodeURIComponent(name)}`;
     fetchStores(url);
 }
 
+
+// Fetch store by category
 function findStoreByCategory() {
-    const category = document.getElementById('category').value;
-    const url = `/businesses/category?category=${encodeURIComponent(category)}`;
+    const categoryInput = document.getElementById('storeCategory'); // Correct ID
+    if (!categoryInput) {
+        alert('Category input field is missing from the DOM');
+        return;
+    }
+
+    const category = categoryInput.value.trim();
+    if (!category) {
+        alert('Please enter a category');
+        return;
+    }
+
+    const url = `/api/business/category?category=${encodeURIComponent(category)}`;
     fetchStores(url);
 }
 
+// Fetch all stores
 function getAllStores() {
-    const url = '/businesses';
+    const url = '/api/business'; // API endpoint
     fetchStores(url);
 }
 
+// Display stores in the UI
 function displayStores(stores) {
     const resultsDiv = document.getElementById('store-results');
     resultsDiv.innerHTML = '';
+
+    // If stores is an array and contains data
     if (Array.isArray(stores) && stores.length > 0) {
         stores.forEach(store => {
-            const storeDiv = document.createElement('div');
-            storeDiv.className = 'store';
-            storeDiv.innerHTML = `
-                <h2>${store.name}</h2>
-                <p>Location: ${store.location}</p>
-                <p>Category: ${store.category}</p>
-            `;
-            resultsDiv.appendChild(storeDiv);
+            if (store.name && store.location && store.category) {
+                const storeDiv = document.createElement('div');
+                storeDiv.className = 'store';
+                storeDiv.innerHTML = `
+                    <h2>${store.name}</h2>
+                    <img src="${store.imageUrl}" alt="$store.name"
+                    style="width100px;height=100px;"/>
+                    <p>Location: ${store.location}</p>
+                    <p>Opening Times: ${store.time}</p>
+                    <p>Category: ${store.category}</p>
+                `;
+                resultsDiv.appendChild(storeDiv);
+            } else {
+                console.error('Store data is missing required fields', store);
+            }
         });
-    } else if (stores) {
+    } else if (stores && stores.name) {
+        // If `stores` is a single store object
         const storeDiv = document.createElement('div');
         storeDiv.className = 'store';
         storeDiv.innerHTML = `
             <h2>${stores.name}</h2>
+            <img src="${stores.imageUrl}" alt="$stores.name"
+            style="width100px;height=100px;"/>
             <p>Location: ${stores.location}</p>
+            <p>Opening Times: ${stores.time}</p>
             <p>Category: ${stores.category}</p>
         `;
         resultsDiv.appendChild(storeDiv);
     } else {
+        // If no stores are found
         resultsDiv.innerHTML = '<p>No stores found</p>';
     }
 }
 
+
+
 // Function to create a new business profile
 function createBusinessProfile() {
-    const name = document.getElementById('businessName').value;
-    const location = document.getElementById('businessLocation').value;
-    const category = document.getElementById('businessCategory').value;
+    const getInputValue = (id) => document.getElementById(id).value.trim();
 
-    if (!name || !location || !category) {
+    const name = getInputValue('businessName');
+    const location = getInputValue('businessLocation');
+    const category = getInputValue('businessCategory');
+    const time = getInputValue('businessTime');
+    const longitude = getInputValue('businessLongitude');
+    const latitude = getInputValue('businessLatitude');
+    const imageUrl = getInputValue('businessImageUrl');
+
+    if (!name || !location || !category || !time || !longitude || !latitude) {
         console.error('All fields are required');
+        alert('Please fill in all fields.');
         return;
     }
 
-    const businessProfile = { name, location, category };
+    const businessProfile = { name, location, category, time, longitude, latitude, imageUrl };
 
-    fetch('/businesses', {
+    console.log('Submitting business profile:', businessProfile);
+
+    fetch('/api/business/addBusiness', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(businessProfile)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(businessProfile),
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        document.getElementById('message').textContent = 'Business profile created successfully';
-        console.log('Business profile created:', data);
-        // Optionally, clear the form fields
-        document.getElementById('create-business-form').reset();
-    })
-    .catch(error => {
-        document.getElementById('message').textContent = 'Error creating business profile';
-        console.error('Error creating business profile:', error);
-    });
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json().catch(() => {
+                throw new Error('Failed to parse JSON response');
+            });
+        })
+        .then((data) => {
+            document.getElementById('message').textContent = 'Business profile created successfully';
+            document.getElementById('message').style.color = 'green';
+            console.log('Business profile created:', data);
+            document.getElementById('business-form').reset();
+        })
+        .catch((error) => {
+            document.getElementById('message').textContent = 'Error creating business profile';
+            document.getElementById('message').style.color = 'red';
+            console.error('Error creating business profile:', error);
+        });
 }
+
+

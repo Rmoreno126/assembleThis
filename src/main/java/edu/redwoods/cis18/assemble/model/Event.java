@@ -30,11 +30,12 @@ Implements equals and hashCode methods to compare entity instances based on the 
 @Entity
 public class Event implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
     private String date;
     private String location;
+    private String imageUrl;
 
     public Integer getId() {
         return id;
@@ -66,6 +67,16 @@ public class Event implements Serializable {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    //image URL in the database
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     // This method is overridden so that the DATABASE record id is used for comparing object equality
