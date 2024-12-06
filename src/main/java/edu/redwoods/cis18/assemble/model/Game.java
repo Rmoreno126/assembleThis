@@ -30,7 +30,7 @@ Implements equals and hashCode methods to compare entity instances based on the 
 @Entity
 public class Game implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
     private String type;

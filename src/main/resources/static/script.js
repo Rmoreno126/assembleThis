@@ -48,26 +48,31 @@ function fetchGames() {
 }
 
 function addGame() {
-    const name = document.getElementById('gameName').value;
-    const type = document.getElementById('gameType').value;
-    const imageUrl = document.getElementById('gameImageUrl').value;
+ const name = document.getElementById('gameName').value;
+ const type = document.getElementById('gameType').value;
+ const imageUrl = document.getElementById('gameImageUrl').value;
+ if (!name || !type || !imageUrl) {
+  console.error('All fields are required');
+   return;
+    }
+     const game = { name, type, imageUrl };
 
-    const game = { name, type, imageUrl };
-
-    fetch('/api/games', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(game)
-    })
-    .then(response => response.json())
-    .then(data => {
-        fetchGames();  // Refresh the list of games
-        console.log('Game added:', data);
-    })
-    .catch(error => console.error('Error adding game:', error));
-}
+       fetch('/api/games', {
+        method: 'POST', headers: {
+         'Content-Type': 'application/json'
+         },
+          body: JSON.stringify(game)
+           })
+            .then(response => {
+             if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+               }
+                return response.json();
+                 }) .then(data => { fetchGames(); // Refresh the list of games console.log
+                 ('Game added:', data);
+                  })
+                   .catch(error => console.error('Error adding game:', error));
+                    }
 
 function deleteGame(id) {
     fetch(`/api/games/${id}`, {
