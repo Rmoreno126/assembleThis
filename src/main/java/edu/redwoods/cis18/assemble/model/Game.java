@@ -1,46 +1,54 @@
 package edu.redwoods.cis18.assemble.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-import java.io.Serializable;
-import java.util.Objects;
-
-/*
-Role: Entity
-
-Purpose: Represents a Game object that will be stored in and retrieved from the database.
-___
-
-Details:
-
-Annotated with @Entity, indicating it's a JPA entity.
-
-Contains fields that map to columns in a database table (e.g., id, name, type).
-
-Includes getter and setter methods to access and modify the entity's properties.
-
-Implements equals and hashCode methods to compare entity instances based on the id field.
-*/
-
-// Game.java focuses on the structure and representation of game data as an entity.
+import java.util.List;
 
 @Entity
-public class Game implements Serializable {
+public class Game {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
+
+    @NotBlank(message = "Game name is required")
+    @Size(max = 100, message = "Game name cannot exceed 100 characters")
+    @Column(nullable = false, unique = true)
     private String name;
+
+    @Size(max = 50, message = "Game type cannot exceed 50 characters")
     private String type;
+
+    @Column(nullable = true)
     private String imageUrl;
 
-    public Integer getId() {
+    @Column(length = 500) // Set a reasonable length for the description
+    private String description; // Brief description of the game
+
+    @ManyToMany(mappedBy = "games", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Business> businesses;
+
+    // Constructors
+    public Game() {
+    }
+
+    public Game(String name, String type, String imageUrl, String description) {
+        this.name = name;
+        this.type = type;
+        this.imageUrl = imageUrl;
+        this.description = description;
+    }
+
+    // Getters and Setters
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -60,8 +68,6 @@ public class Game implements Serializable {
         this.type = type;
     }
 
-    //image URL in the database
-
     public String getImageUrl() {
         return imageUrl;
     }
@@ -70,18 +76,30 @@ public class Game implements Serializable {
         this.imageUrl = imageUrl;
     }
 
-    // This method is overridden so that the DATABASE record id is used for comparing object equality
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Game game = (Game) o;
-        return id.equals(game.id);
+    public String getDescription() {
+        return description;
     }
 
-    // This method is overridden so that the object id will be tied to the DATABASE record id.
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<Business> getBusinesses() {
+        return businesses;
+    }
+
+    public void setBusinesses(List<Business> businesses) {
+        this.businesses = businesses;
+    }
+
     @Override
-    public int hashCode() {
-        return Objects.hash(id);
+    public String toString() {
+        return "Game{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", type='" + type + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
 }

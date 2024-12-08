@@ -1,35 +1,48 @@
 package edu.redwoods.cis18.assemble.controller;
 
+import edu.redwoods.cis18.assemble.model.ApiResponse;
 import edu.redwoods.cis18.assemble.model.Business;
+import edu.redwoods.cis18.assemble.repository.BusinessRepository;
 import edu.redwoods.cis18.assemble.service.BusinessService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/business")
 public class BusinessController {
 
-    @Autowired
-    private BusinessService businessService;
+    private final BusinessRepository businessRepository;
+    private final BusinessService businessService;
 
-    @GetMapping
+    public BusinessController(BusinessRepository businessRepository, BusinessService businessService) {
+        this.businessRepository = businessRepository;
+        this.businessService = businessService;
+    }
+
+    @GetMapping("/paged")
+    public Page<Business> getBusinesses(@RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "10") int size) {
+        return businessRepository.findAll(PageRequest.of(page, size));
+    }
+
+    @GetMapping("/all")
     public List<Business> getAllBusinesses() {
         return businessService.getAllBusinesses();
     }
 
-    /*@PostMapping("/addBusiness")
-    public Business addBusiness(@RequestBody Business business) {
-        return businessService.createBusiness(business);
-    }*/
     @PostMapping("/addBusiness")
-    public ResponseEntity<Business> addBusiness(@RequestBody Business business) {
+    public ResponseEntity<ApiResponse<Business>> addBusiness(@Valid @RequestBody Business business) {
         Business savedBusiness = businessService.createBusiness(business);
-        return ResponseEntity.ok(savedBusiness);
+        return ResponseEntity.ok(new ApiResponse<>(true, savedBusiness, "Business added successfully."));
     }
-
 
     @GetMapping("/location")
     public List<Business> getStoresByLocation(@RequestParam String location) {
@@ -46,4 +59,22 @@ public class BusinessController {
         return businessService.findStoreByCategory(category);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getBusinessById(@PathVariable Long id) {
+        Optional<Business> business = businessService.getBusinessById(id);
+        if (business.isPresent()) {
+            Business b = business.get();
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", b.getId());
+            response.put("name", b.getName());
+            response.put("location", b.getLocation());
+            response.put("category", b.getCategory());
+            response.put("latitude", b.getLatitude());
+            response.put("longitude", b.getLongitude());
+            response.put("operatingHoursSummary", b.getOperatingHoursSummary());
+            return ResponseEntity.ok(new ApiResponse<>(true, response, "Business found."));
+        } else {
+            return ResponseEntity.status(404).body(new ApiResponse<>(false, null, "Business not found."));
+        }
+    }
 }

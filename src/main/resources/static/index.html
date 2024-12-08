@@ -2,61 +2,113 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="style.css">
-    <title>The Gamer</title>
+    <title>Assemble - Test Businesses</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        .business-list {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 16px;
+          padding: 20px;
+        }
+
+        .business-card {
+          width: 300px;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          overflow: hidden;
+          background-color: #fff;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          text-align: center;
+        }
+
+        .business-image {
+          width: 100%;
+          height: 200px;
+          object-fit: cover;
+        }
+
+        .business-card h2 {
+          font-size: 18px;
+          margin: 8px 0;
+          color: #333;
+        }
+
+        .business-card p {
+          font-size: 14px;
+          color: #555;
+          margin: 0 8px 16px;
+        }
+    </style>
 </head>
 <body>
-<header style="position: relative;">
-    <div class="w3-top" class="header" id="home">
-        <div class="w3-bar w3-card w3-left-align w3-large header-large-screen" style="background-color: #000015;">
-            <a class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-padding-large w3-hover-black w3-large" href="javascript:void(0);" onclick="myFunction()" title="Toggle Navigation Menu"><i class="fa fa-bars"></i></a>
-            <a href="#home" class="w3-bar-item w3-button w3-padding-large w3-hover-black">Mini-Boss</a>
-            <div>
-                <a href="#about" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-black">About</a>
-                <a href="#games" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-black">Games</a>
-                <a href="#shop" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-black">Shop</a>
-                <a href="#events" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-black">Events</a>
-                <a href="#contact" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-black">Contact</a>
-            </div>
-        </div>
-        <!-- Navbar on small screens -->
-        <div id="navDemo" class="w3-bar-block w3-hide w3-hide-large w3-hide-medium w3-large">
-            <a href="#about" class="w3-bar-item w3-button w3-padding-large" onclick="myFunction()">About</a>
-            <a href="#games" class="w3-bar-item w3-button w3-padding-large" onclick="myFunction()">Games</a>
-            <a href="#shop" class="w3-bar-item w3-button w3-padding-large" onclick="myFunction()">Shop</a>
-            <a href="#events" class="w3-bar-item w3-button w3-padding-large" onclick="myFunction()">Events</a>
-            <a href="#contact" class="w3-bar-item w3-button w3-padding-large" onclick="myFunction()">Contact</a>
-        </div>
+<h1 style="text-align: center; margin-top: 20px;">Business Listings (Static Test)</h1>
+<div class="business-list">
+    <!-- Example Business Cards -->
+    <div class="business-card">
+        <img src="https://assets.pokemon.com/static2/_ui/img/og-default-image.jpeg" alt="Pokémon Store" class="business-image">
+        <h2>Pokémon Store</h2>
+        <p>A store for all your Pokémon needs.</p>
     </div>
-</header>
-
-<section>
-    <div class="hero" id="about">
-        <div class="hero-description">
-            <div class="hero-text">
-                <h1 class="hero-title">Adding Fun to your Life</h1>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Officiis, impedit quo. Officia nisi corrupti iste asperiores accusamus quisquam quod perspiciatis vitae? Esse eum molestiae ab quasi omnis quidem officia eaque.</p>
-                <span class="w3-text-white social" style="margin-top:50px">
-                    <p>Follow us on Social media</p>
-                    <div class="w3-margin-top">
-                        <a href="#"><i class="fa fa-facebook-official w3-hover-opacity icons"></i></a>
-                        <a href="#"><i class="fa fa-instagram w3-hover-opacity icons"></i></a>
-                        <a href="#"><i class="fa fa-snapchat w3-hover-opacity icons"></i></a>
-                        <a href="#"><i class="fa fa-pinterest-p w3-hover-opacity icons"></i></a>
-                        <a href="#"><i class="fa fa-twitter w3-hover-opacity icons"></i></a>
-                        <a href="#"><i class="fa fa-linkedin w3-hover-opacity icons"></i></a>
-                    </div>
-                </span>
-            </div>
-        </div>
+    <div class="business-card">
+        <img src="https://assets.pokemon.com/static2/_ui/img/og-default-image.jpeg" alt="Game World" class="business-image">
+        <h2>Game World</h2>
+        <p>A place for board games and RPG enthusiasts.</p>
     </div>
-</section>
+</div>
 
-<main style="padding-bottom:40px;">
+<!-- Form for creating a business profile -->
+<div class="create-business" id="create-business">
+    <h2 class="title">Create Business Profile</h2>
+    <form id="business-form" onsubmit="event.preventDefault(); createBusinessProfile();">
+        <div>
+            <label for="businessName">Business Name:</label>
+            <input type="text" id="businessName" name="businessName" placeholder="Business Name" required>
+        </div>
+        <div>
+            <label for="businessCategory">Category:</label>
+            <input type="text" id="businessCategory" name="businessCategory" placeholder="Category">
+        </div>
+        <div>
+            <label for="businessTime">Opening Hours:</label>
+            <input type="text" id="businessTime" name="businessTime" placeholder="e.g., Mon-Fri: 9 AM - 5 PM" required>
+        </div>
+        <div>
+            <label for="businessLatitude">Latitude:</label>
+            <input type="text" id="businessLatitude" name="latitude" placeholder="Latitude" readonly>
+        </div>
+        <div>
+            <label for="businessLongitude">Longitude:</label>
+            <input type="text" id="businessLongitude" name="longitude" placeholder="Longitude" readonly>
+        </div>
+        <div>
+            <label for="businessImageUrl">Business Image URL:</label>
+            <input type="text" id="businessImageUrl" name="imageUrl" placeholder="Business Image">
+        </div>
+        <div>
+            <h3>Select Business Location</h3>
+            <div id="map" style="height: 400px; margin-bottom: 20px;"></div>
+        </div>
+        <div>
+            <label for="businessLocation">Address:</label>
+            <input type="text" id="businessLocation" name="location" placeholder="Click on the map to select location" readonly required>
+        </div>
+        <!--   <input type="hidden" id="latitude" name="latitude">
+           <input type="hidden" id="longitude" name="longitude">-->
+
+        <button type="submit">Submit</button>
+    </form>
+    <div id="message"></div> <!-- For displaying success or error messages -->
+</div>
+<div style="padding-bottom:40px;">
     <h2 class="title" id="games">List of Games</h2>
     <div class="games">
         <!-- Games will be dynamically populated here -->
@@ -93,99 +145,37 @@
         <div id="store-results"></div>
     </div>
 
-    <!-- Form for creating a business profile -->
-    <div class="create-business" id="create-business">
-        <h2 class="title">Create Business Profile</h2>
-        <form id="business-form" onsubmit="event.preventDefault(); createBusinessProfile();">
-            <div>
-                <label for="businessName">Business Name:</label>
-                <input type="text" id="businessName" name="businessName" placeholder="Business Name" required>
-            </div>
-            <div>
-                <label for="businessCategory">Category:</label>
-                <input type="text" id="businessCategory" name="businessCategory" placeholder="Category">
-            </div>
-            <div>
-                <label for="businessTime">Opening Hours:</label>
-                <input type="text" id="businessTime" name="businessTime" placeholder="e.g., Mon-Fri: 9 AM - 5 PM" required>
-            </div>
-            <div>
-                <label for="businessLatitude">Latitude:</label>
-                <input type="text" id="businessLatitude" name="latitude" placeholder="Latitude" readonly>
-            </div>
-            <div>
-                <label for="businessLongitude">Longitude:</label>
-                <input type="text" id="businessLongitude" name="longitude" placeholder="Longitude" readonly>
-            </div>
-            <div>
-                <label for="businessImageUrl">Business Image URL:</label>
-                <input type="text" id="businessImageUrl" name="imageUrl" placeholder="Business Image">
-            </div>
-            <div>
-                <h3>Select Business Location</h3>
-                <div id="map" style="height: 400px; margin-bottom: 20px;"></div>
-            </div>
-            <div>
-                <label for="businessLocation">Address:</label>
-                <input type="text" id="businessLocation" name="location" placeholder="Click on the map to select location" readonly required>
-            </div>
-         <!--   <input type="hidden" id="latitude" name="latitude">
-            <input type="hidden" id="longitude" name="longitude">-->
+<!-- External resources -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-            <button type="submit">Submit</button>
-        </form>
-        <div id="message"></div> <!-- For displaying success or error messages -->
-    </div>
-
-    <!-- External resources -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-
-    <div class="event" id="events">
-        <h2 class="title">Upcoming Events</h2>
-        <div class="event-hero" style="position: relative;">
-            <!-- Events will be dynamically populated here -->
-        </div>
-    </div>
-
-    <div>
-        <h2 class="title">Reach out to us</h2>
-        <div class="contact" id="contact" style="padding-bottom: 10px !important;">
-            <div class="contact-list contact-address">
-                <h5><span><i class="fa fa-map-marker w3-xlarge w3-text-light-grey"></i></span>Address</h5>
-                <p>Akersgata 12, Oslo, Norway </p>
-                <p>Bogstadveien 34, Oslo, Norway </p>
-                <p>Karl Johans gate 1, Oslo, Norway </p>
-            </div>
-            <div class="contact-list">
-                <h5><span><i class="fa fa-envelope w3-xlarge w3-text-light-grey"></i></span>Receive weekly update email</h5>
-                <div class="email-contact">
-                    <input placeholder="Email" type="email" style="margin: 8px"/>
-                    <button class="w3-btn w3-red w3-round" style="width: 100px; padding:3px 10px !important">Subscribe</button>
-                </div>
-            </div>
-            <div class="contact-list">
-                <h5><span><i class="fa fa-phone w3-xlarge w3-text-light-grey"></i></span>Phone</h5>
-                <p>763-957-6781</p>
-                <p>706-734-2591</p>
-            </div>
-        </div>
-    </div>
-</main>
-
-<div class="w3-padding w3-center" style="background: #FFF4A3;padding: 10px 0px !important; color:#282A35;">
-    <div style="display: flex; justify-content: center;align-items: center; flex-wrap: wrap;">
-        <p style="margin: 10px !important;">This website was made with w3schools Spaces. Make your own free website today</p>
-        <button class="w3-margin-top w3-btn w3-text-white w3-round-xxlarge" style="background-color:#282A35;padding: 8px 25px; margin:0px !important">Start now</button>
+<div class="event" id="events">
+    <h2 class="title">Upcoming Events</h2>
+    <div class="event-hero" style="position: relative;">
+        <!-- Events will be dynamically populated here -->
     </div>
 </div>
-
-<!-- Add a canvas element for the user chart -->
-<canvas id="userChart" width="400" height="200"></canvas>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="script.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('/api/business/paged?page=0&size=10')
+        .then(response => response.json())
+        .then(data => {
+          const businessList = document.querySelector('.business-list');
+          data.content.forEach(business => {
+            const card = document.createElement('div');
+            card.className = 'business-card';
+            card.innerHTML = `
+              <img src="${business.imageUrl}" alt="${business.name}" class="business-image">
+              <h2>${business.name}</h2>
+              <p>${business.description}</p>
+            `;
+            businessList.appendChild(card);
+          });
+        })
+        .catch(error => console.error('Error fetching businesses:', error));
+    });
+</script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // Initialize the map

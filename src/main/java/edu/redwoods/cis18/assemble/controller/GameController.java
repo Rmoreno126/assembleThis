@@ -16,34 +16,32 @@ public class GameController {
     @Autowired
     private GameService gameService;
 
-    @GetMapping
-    public List<Game> getAllGames() {
-        return gameService.getAllGames();
-    }
-
+    // Create or Update a Game
     @PostMapping
-    public Game createGame(@RequestBody Game game) {
-        return gameService.createGame(game);
+    public ResponseEntity<Game> saveOrUpdateGame(@RequestBody Game game) {
+        Game savedGame = gameService.saveOrUpdateGame(game);
+        return ResponseEntity.ok(savedGame);
     }
 
+    // Get All Games
+    @GetMapping
+    public ResponseEntity<List<Game>> getAllGames() {
+        List<Game> games = gameService.getAllGames();
+        return ResponseEntity.ok(games);
+    }
+
+    // Get a Game by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Game> getGameById(@PathVariable Integer id) {
+    public ResponseEntity<Game> getGameById(@PathVariable Long id) {
         Optional<Game> game = gameService.getGameById(id);
-        return game.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return game.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Game> updateGame(@PathVariable Integer id, @RequestBody Game gameDetails) {
-        try { Game updatedGame = gameService.updateGame(id, gameDetails);
-            return ResponseEntity.ok(updatedGame);
-        } catch (RuntimeException e) { return ResponseEntity.notFound().build();
-        }
-    }
-
+    // Delete a Game by ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGame(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteGame(@PathVariable Long id) {
         gameService.deleteGame(id);
         return ResponseEntity.noContent().build();
     }
 }
-

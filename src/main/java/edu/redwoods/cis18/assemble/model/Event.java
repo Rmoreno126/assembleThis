@@ -1,47 +1,68 @@
 package edu.redwoods.cis18.assemble.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-import java.io.Serializable;
-import java.util.Objects;
-
-/*
-Role: Entity
-
-Purpose: Represents an Event object that will be stored in and retrieved from the database.
-___
-
-Details:
-
-Annotated with @Entity, indicating it's a JPA entity.
-
-Contains fields that map to columns in a database table (e.g., id, name, date, location).
-
-Includes getter and setter methods to access and modify the entity's properties.
-
-Implements equals and hashCode methods to compare entity instances based on the id field.
-*/
-
-// Event.java focuses on the structure and representation of event data as an entity.
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
-public class Event implements Serializable {
+public class Event {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    private String name;
-    private String date;
-    private String location;
-    private String imageUrl;
+    private Long id;
 
-    public Integer getId() {
+    @NotBlank(message = "Event name is required")
+    @Size(max = 100, message = "Event name cannot exceed 100 characters")
+    @Column(nullable = false)
+    private String name; // Name of the event
+
+    @Size(max = 500, message = "Event description cannot exceed 500 characters")
+    private String description; // Detailed description of the event
+
+    @Column(nullable = true)
+    private String imageUrl; // Event image URL
+
+    @FutureOrPresent(message = "Event date must be today or in the future")
+    @Column(nullable = false)
+    private LocalDate date; // Date of the event
+
+    @Column(nullable = false)
+    private LocalTime time; // Time of the event
+
+    @ManyToOne
+    @JoinColumn(name = "business_id", nullable = false)
+    @JsonIgnore
+    private Business business; // The business hosting the event
+
+    @ManyToOne
+    @JoinColumn(name = "host_id", nullable = false)
+    private User host; // The user hosting the event
+
+    // Constructors
+    public Event() {
+    }
+
+    public Event(String name, String description, String imageUrl, LocalDate date, LocalTime time, Business business, User host) {
+        this.name = name;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.date = date;
+        this.time = time;
+        this.business = business;
+        this.host = host;
+    }
+
+    // Getters and Setters
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -53,23 +74,13 @@ public class Event implements Serializable {
         this.name = name;
     }
 
-    public String getDate() {
-        return date;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setDescription(String description) {
+        this.description = description;
     }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    //image URL in the database
 
     public String getImageUrl() {
         return imageUrl;
@@ -79,18 +90,49 @@ public class Event implements Serializable {
         this.imageUrl = imageUrl;
     }
 
-    // This method is overridden so that the DATABASE record id is used for comparing object equality
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Event event = (Event) o;
-        return id.equals(event.id);
+    public LocalDate getDate() {
+        return date;
     }
 
-    // This method is overridden so that the object id will be tied to the DATABASE record id.
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public LocalTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalTime time) {
+        this.time = time;
+    }
+
+    public Business getBusiness() {
+        return business;
+    }
+
+    public void setBusiness(Business business) {
+        this.business = business;
+    }
+
+    public User getHost() {
+        return host;
+    }
+
+    public void setHost(User host) {
+        this.host = host;
+    }
+
     @Override
-    public int hashCode() {
-        return Objects.hash(id);
+    public String toString() {
+        return "Event{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", date=" + date +
+                ", time=" + time +
+                ", business=" + (business != null ? business.getName() : "null") +
+                ", host=" + (host != null ? host.getName() : "null") +
+                '}';
     }
 }

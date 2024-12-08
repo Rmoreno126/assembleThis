@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BusinessService {
@@ -39,5 +40,9 @@ public class BusinessService {
 
     public List<Business> findStoreByCategory(String category) {
         return businessRepository.findByCategory(category);
+    }
+
+    public Optional<Business> getBusinessById(Long id) {
+        return Optional.empty();
     }
 }
