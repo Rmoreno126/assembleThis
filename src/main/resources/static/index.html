@@ -78,8 +78,12 @@
             <input type="text" id="businessCategory" name="businessCategory" placeholder="Category">
         </div>
         <div>
-            <label for="businessTime">Opening Hours:</label>
-            <input type="text" id="businessTime" name="businessTime" placeholder="e.g., Mon-Fri: 9 AM - 5 PM" required>
+            <label for="businessDescription">Description:</label>
+            <input type="text" id="businessDescription" name="businessDescription" placeholder="Description">
+        </div>
+        <div>
+            <label for="businessLogoUrl">Business Logo:</label>
+            <input type="text" id="businessLogoUrl" name="LogoUrl" placeholder="Business Logo Url">
         </div>
         <div>
             <label for="businessLatitude">Latitude:</label>
@@ -158,7 +162,7 @@
 <script src="script.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-      fetch('/api/business/paged?page=0&size=10')
+      fetch('/api/business/paged?page=0&size=100')
         .then(response => response.json())
         .then(data => {
           const businessList = document.querySelector('.business-list');
@@ -169,6 +173,7 @@
               <img src="${business.imageUrl}" alt="${business.name}" class="business-image">
               <h2>${business.name}</h2>
               <p>${business.description}</p>
+              <p>{operatingHoursSummary}</p>
             `;
             businessList.appendChild(card);
           });
@@ -229,7 +234,8 @@
             businessLatitude: document.getElementById('businessLatitude').value,
             businessLongitude: document.getElementById('businessLongitude').value,
             businessImageUrl: document.getElementById('businessImageUrl').value,
-            businessTime: document.getElementById('businessTime').value,
+            businessLogoUrl: document.getElementById('businessLogoUrl').value,
+            businessDescription: document.getElementById('businessDescription')value,
         };
 
         // Send POST request to backend

@@ -3,7 +3,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     fetchUsers();
     fetchGames();
-    fetchStoreItems();
+    fetchBusiness();
+    fetchStores();
     fetchEvents();
 
     // Add event listener for the Create Business Profile form
@@ -30,7 +31,7 @@ fetch('/api/events')
         const eventsContainer = document.querySelector('.event-hero');
         eventsContainer.innerHTML = data.map(event => {
             // Handle missing or null fields
-            const imageUrl = event.imageUrl || 'https://via.placeholder.com/100'; // Fallback image
+            const imageUrl = event.imageUrl || 'https://e7.pngegg.com/pngimages/89/1001/png-clipart-mario-party-10-wii-party-wii-u-bowser-mario-party-star-rush-donkey-kong-food-cake-decorating.png'; // Fallback image
             const name = event.name || 'Unnamed Event';
             const location = event.location || 'Location not available';
 
@@ -68,16 +69,27 @@ function createBusinessProfile() {
     const name = getInputValue('businessName');
     const location = getInputValue('businessLocation');
     const category = getInputValue('businessCategory');
+    const description = getInputValue('businessDescription');
     const longitude = getInputValue('businessLongitude');
     const latitude = getInputValue('businessLatitude');
     const imageUrl = getInputValue('businessImageUrl');
+    const logoUrl = getInputValue('businessLogoUrl')
+
+//Trying to figure out a way to put a default image if user does not enter one
+/*    if (!imageUrl) {
+    imageUrl = 'Blank.jpg';
+    }
+
+    if (!logoUrl) {
+    logoUrl = 'Blank.jpg';
+    }*/
 
     if (!name || !location || !category || !longitude || !latitude) {
         alert('Please fill in all required fields.');
         return;
     }
 
-    const businessProfile = { name, location, category, longitude, latitude, imageUrl };
+    const businessProfile = { name, location, category, description, longitude, latitude, imageUrl, logoUrl };
 
     fetch('/api/business/addBusiness', {
         method: 'POST',

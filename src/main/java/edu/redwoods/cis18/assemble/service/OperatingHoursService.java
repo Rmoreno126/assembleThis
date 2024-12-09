@@ -36,4 +36,5 @@ public class OperatingHoursService {
     public void deleteOperatingHours(Long id) {
         operatingHoursRepository.deleteById(id);
     }
+
 }

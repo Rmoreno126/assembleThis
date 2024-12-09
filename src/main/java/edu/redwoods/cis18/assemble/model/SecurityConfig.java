@@ -12,7 +12,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index.html", "/api/**", "/static/**", "/css/**", "/js/**", "/script.js", "/error", "/favicon.ico").permitAll() // Allow all API and public access
+                        .requestMatchers("/**", "/index.html", "/api/**", "/static/**", "/css/**", "/js/**", "/script.js", "/error", "/favicon.ico").permitAll() // Allow all API and public access
                         .anyRequest().authenticated() // Secure other endpoints
                 )
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for simplicity

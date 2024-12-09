@@ -28,8 +28,11 @@ public class Business {
     @Column(nullable = true)
     private String description; // Description of the business
 
-    @Column(nullable = true)
+    @Column(nullable = true, length = 1000)
     private String imageUrl; // Business image URL
+
+    @Column(nullable = true, length = 1000)
+    private String logoUrl; // Business logo image URL
 
     private Double latitude; // For geolocation
     private Double longitude;
@@ -74,12 +77,13 @@ public class Business {
     public Business() {
     }
 
-    public Business(String name, String location, String category, String description, String imageUrl, Double latitude, Double longitude, User owner) {
+    public Business(String name, String location, String category, String description, String imageUrl, String logoUrl, Double latitude, Double longitude, User owner) {
         this.name = name;
         this.location = location;
         this.category = category;
         this.description = description;
         this.imageUrl = imageUrl;
+        this.logoUrl = logoUrl;
         this.latitude = latitude;
         this.longitude = longitude;
         this.owner = owner;
@@ -131,6 +135,14 @@ public class Business {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getLogoUrl() {
+        return logoUrl;
+    }
+
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
     }
 
     public Double getLatitude() {
