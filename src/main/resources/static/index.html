@@ -75,11 +75,108 @@
         </div>
         <div>
             <label for="businessCategory">Category:</label>
-            <input type="text" id="businessCategory" name="businessCategory" placeholder="Category">
+            <select id="businessCategory" name="businessCategory" required>
+                <option value="" disabled selected>Select Category</option>
+                <option value="Retail">Retail</option>
+                <option value="Food and Beverage">Food and Beverage</option>
+                <option value="Health">Health</option>
+                <option value="Education">Education</option>
+                <!-- Add more options as needed -->
+            </select>
         </div>
         <div>
             <label for="businessTime">Opening Hours:</label>
-            <input type="text" id="businessTime" name="businessTime" placeholder="e.g., Mon-Fri: 9 AM - 5 PM" required>
+            <div>
+                <label>Days:</label>
+                <div>
+                    <input type="checkbox" id="monday" name="businessDays" value="Monday">
+                    <label for="monday">Monday</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="tuesday" name="businessDays" value="Tuesday">
+                    <label for="tuesday">Tuesday</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="wednesday" name="businessDays" value="Wednesday">
+                    <label for="wednesday">Wednesday</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="thursday" name="businessDays" value="Thursday">
+                    <label for="thursday">Thursday</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="friday" name="businessDays" value="Friday">
+                    <label for="friday">Friday</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="saturday" name="businessDays" value="Saturday">
+                    <label for="saturday">Saturday</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="sunday" name="businessDays" value="Sunday">
+                    <label for="sunday">Sunday</label>
+                </div>
+            </div>
+            <div>
+                <label for="businessStartTime">Start Time:</label>
+                <select id="businessStartTime" name="businessStartTime" required>
+                    <option value="" disabled selected>Select Start Time</option>
+                    <option value="00:00">12:00 AM</option>
+                    <option value="01:00">1:00 AM</option>
+                    <option value="02:00">2:00 AM</option>
+                    <option value="03:00">3:00 AM</option>
+                    <option value="04:00">4:00 AM</option>
+                    <option value="05:00">5:00 AM</option>
+                    <option value="06:00">6:00 AM</option>
+                    <option value="07:00">7:00 AM</option>
+                    <option value="08:00">8:00 AM</option>
+                    <option value="09:00">9:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">1:00 PM</option>
+                    <option value="14:00">2:00 PM</option>
+                    <option value="15:00">3:00 PM</option>
+                    <option value="16:00">4:00 PM</option>
+                    <option value="17:00">5:00 PM</option>
+                    <option value="18:00">6:00 PM</option>
+                    <option value="19:00">7:00 PM</option>
+                    <option value="20:00">8:00 PM</option>
+                    <option value="21:00">9:00 PM</option>
+                    <option value="22:00">10:00 PM</option>
+                    <option value="23:00">11:00 PM</option>
+                </select>
+            </div>
+            <div>
+                <label for="businessEndTime">End Time:</label>
+                <select id="businessEndTime" name="businessEndTime" required>
+                    <option value="" disabled selected>Select End Time</option>
+                    <option value="00:00">12:00 AM</option>
+                    <option value="01:00">1:00 AM</option>
+                    <option value="02:00">2:00 AM</option>
+                    <option value="03:00">3:00 AM</option>
+                    <option value="04:00">4:00 AM</option>
+                    <option value="05:00">5:00 AM</option>
+                    <option value="06:00">6:00 AM</option>
+                    <option value="07:00">7:00 AM</option>
+                    <option value="08:00">8:00 AM</option>
+                    <option value="09:00">9:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">1:00 PM</option>
+                    <option value="14:00">2:00 PM</option>
+                    <option value="15:00">3:00 PM</option>
+                    <option value="16:00">4:00 PM</option>
+                    <option value="17:00">5:00 PM</option>
+                    <option value="18:00">6:00 PM</option>
+                    <option value="19:00">7:00 PM</option>
+                    <option value="20:00">8:00 PM</option>
+                    <option value="21:00">9:00 PM</option>
+                    <option value="22:00">10:00 PM</option>
+                    <option value="23:00">11:00 PM</option>
+                </select>
+            </div>
         </div>
         <div>
             <label for="businessLatitude">Latitude:</label>
@@ -101,9 +198,6 @@
             <label for="businessLocation">Address:</label>
             <input type="text" id="businessLocation" name="location" placeholder="Click on the map to select location" readonly required>
         </div>
-        <!--   <input type="hidden" id="latitude" name="latitude">
-           <input type="hidden" id="longitude" name="longitude">-->
-
         <button type="submit">Submit</button>
     </form>
     <div id="message"></div> <!-- For displaying success or error messages -->
@@ -140,12 +234,17 @@
             <button onclick="findStoreByCategory()">Search by Category</button>
         </div>
         <div>
+            <label for="games">Game(s):</label>
+            <input type="text" id="storeGames" name="games" placeholder="e.g., Chess, Monopoly">
+            <button onclick="findStoreByGames()">Search by Game(s)</button>
+        </div>
+        <div>
             <button onclick="getAllStores()">Get All Stores</button>
         </div>
         <div id="store-results"></div>
     </div>
 
-<!-- External resources -->
+    <!-- External resources -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -156,6 +255,34 @@
     </div>
 </div>
 <script src="script.js"></script>
+    <script>
+        document.getElementById('business-form').addEventListener('submit', function() {
+            const selectedDays = Array.from(document.querySelectorAll('input[name="businessDays"]:checked')).map(checkbox => checkbox.value);
+            const businessStartTime = document.getElementById('businessStartTime').value;
+            const businessEndTime = document.getElementById('businessEndTime').value;
+
+            const openingHours = {
+                days: selectedDays,
+                startTime: businessStartTime,
+                endTime: businessEndTime
+            };
+
+            console.log(openingHours);  // Log the opening hours for debugging
+
+            // Add the opening hours to a hidden input field to include in form data
+            const openingHoursInput = document.createElement('input');
+            openingHoursInput.type = 'hidden';
+            openingHoursInput.name = 'openingHours';
+            openingHoursInput.value = JSON.stringify(openingHours);
+            document.getElementById('business-form').appendChild(openingHoursInput);
+        });
+
+        function createBusinessProfile() {
+            // Your form submission logic here
+            // Ensure the openingHours input is included in the data being sent to the server
+        }
+    </script>
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
       fetch('/api/business/paged?page=0&size=10')
