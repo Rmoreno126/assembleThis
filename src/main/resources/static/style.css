@@ -1,18 +1,25 @@
-/* style.css */
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-/* Add your custom styles here */
 body {
     font-family: Arial, sans-serif;
 }
 
+/* Header Section */
 .header {
     background-color: #000015;
+    padding: 10px 20px;
 }
 
-.heeder-large-screen .w3-bar-item {
+.header-large-screen .w3-bar-item {
     color: #fff;
 }
 
+/* Hero Section */
 .hero {
     background-color: #282A35;
     color: white;
@@ -22,23 +29,41 @@ body {
 
 .hero-title {
     font-size: 48px;
+    line-height: 1.2;
 }
 
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 32px;
+    }
+}
+
+/* Social Section */
 .social .icons {
     margin: 0 10px;
     font-size: 24px;
 }
 
+.social .icons:hover {
+    color: #007BFF;
+    transform: scale(1.1);
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+/* Title Section */
 .title {
     font-size: 36px;
     text-align: center;
     margin: 20px 0;
 }
 
+/* Game List */
 .game-list {
     display: flex;
     align-items: center;
     margin: 10px;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
 .game-list img {
@@ -47,12 +72,118 @@ body {
     margin-right: 20px;
 }
 
+/* Contact List */
 .contact-list {
     margin: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
 }
 
 .contact-address p {
     margin: 5px 0;
 }
 
-/* Add more custom styles as needed */
+/* Store Section */
+.store {
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.store div {
+    margin-bottom: 10px;
+}
+
+.store label {
+    margin-right: 10px;
+}
+
+.store input {
+    margin-bottom: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+}
+
+.store button {
+    padding: 10px 15px;
+    margin-top: 5px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.store button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.store button:focus {
+    outline: 2px solid #0056b3;
+    outline-offset: 2px;
+}
+
+#store-results {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+/* Pagination */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    gap: 10px;
+}
+
+.pagination-container button {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.pagination-container button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.pagination-container button:hover:not(:disabled) {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.pagination-container button:focus {
+    outline: 2px solid #0056b3;
+    outline-offset: 2px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .store div {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .store label {
+        margin-bottom: 5px;
+    }
+
+    #store-results {
+        grid-template-columns: 1fr;
+    }
+}

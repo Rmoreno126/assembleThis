@@ -1,5 +1,6 @@
 package edu.redwoods.cis18.assemble.controller;
 
+import edu.redwoods.cis18.assemble.dto.PaginatedResponse;
 import edu.redwoods.cis18.assemble.model.ApiResponse;
 import edu.redwoods.cis18.assemble.model.Business;
 import edu.redwoods.cis18.assemble.repository.BusinessRepository;
@@ -29,9 +30,18 @@ public class BusinessController {
     }
 
     @GetMapping("/paged")
-    public Page<Business> getBusinesses(@RequestParam(defaultValue = "0") int page,
-                                        @RequestParam(defaultValue = "10") int size) {
-        return businessRepository.findAll(PageRequest.of(page, size));
+    public PaginatedResponse<Business> getBusinesses(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<Business> businessPage = businessRepository.findAll(PageRequest.of(page, size));
+        return new PaginatedResponse<>(
+                businessPage.getContent(),
+                businessPage.getNumber(),
+                businessPage.getSize(),
+                businessPage.getTotalElements(),
+                businessPage.getTotalPages()
+        );
     }
 
     @GetMapping("/all")

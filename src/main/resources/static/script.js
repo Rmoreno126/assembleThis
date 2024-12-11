@@ -1,131 +1,240 @@
-/* script.js */
-
-document.addEventListener('DOMContentLoaded', function() {
-    fetchUsers();
+document.addEventListener('DOMContentLoaded', function () {
+    // Fetch initial data
+    fetchPagedStores(); // Fetch paged stores by default
     fetchGames();
-    fetchBusiness();
-    fetchStores();
     fetchEvents();
 
     // Add event listener for the Create Business Profile form
-    const createBusinessForm = document.getElementById('create-business-form');
-    createBusinessForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-        createBusinessProfile();
+    const createBusinessForm = document.getElementById('business-form');
+    if (createBusinessForm) {
+        createBusinessForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            createBusinessProfile();
+        });
+    }
+
+    // Add event listeners for pagination
+    const prevPageButton = document.getElementById('prev-page');
+    if (prevPageButton) {
+        console.log('Attaching event listener to Previous Page button'); // Debugging
+        prevPageButton.addEventListener('click', () => {
+            console.log('Previous button clicked'); // Debugging
+            if (currentPage > 0) {
+                fetchPagedStores(currentPage - 1, pageSize);
+            }
+        });
+    }
+
+    const nextPageButton = document.getElementById('next-page');
+    if (nextPageButton) {
+        console.log('Next Page button found'); // Debugging
+        nextPageButton.addEventListener('click', () => {
+            console.log('Next button clicked'); // Debugging
+            fetchPagedStores(currentPage + 1, pageSize);
+        });
+    } else {
+        console.error('Next Page button not found'); // Debugging
+    }
+
+    // Event listeners for store search functionality
+    const searchByLocationButton = document.getElementById('search-by-location');
+    if (searchByLocationButton) {
+        searchByLocationButton.addEventListener('click', findStoreByLocation);
+    }
+
+    const searchByNameButton = document.getElementById('search-by-name');
+    if (searchByNameButton) {
+        searchByNameButton.addEventListener('click', findStoreByName);
+    }
+
+    const searchByCategoryButton = document.getElementById('search-by-category');
+    if (searchByCategoryButton) {
+        searchByCategoryButton.addEventListener('click', findStoreByCategory);
+    }
+
+    const getAllStoresButton = document.getElementById('get-all-stores');
+    if (getAllStoresButton) {
+        getAllStoresButton.addEventListener('click', fetchStores);
+    }
+
+    // Add event listener for the Add Game button
+    const addGameButton = document.getElementById('add-game-btn');
+    if (addGameButton) {
+        addGameButton.addEventListener('click', addGame);
+    }
+
+    // Map Initialization
+    const map = L.map('map').setView([40.7994, -124.1644], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+    }).addTo(map);
+
+    let marker;
+    map.on('click', function (e) {
+        const { lat, lng } = e.latlng;
+        if (marker) {
+            marker.setLatLng(e.latlng);
+        } else {
+            marker = L.marker(e.latlng).addTo(map);
+        }
+
+        document.getElementById('businessLatitude').value = lat;
+        document.getElementById('businessLongitude').value = lng;
+
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+            .then(response => response.json())
+            .then(data => {
+                const address = data.display_name || 'Address not found';
+                document.getElementById('businessLocation').value = address;
+            })
+            .catch(error => console.error('Error fetching address:', error));
     });
 });
 
+// Fetch and display stores
 function fetchStores() {
     fetch('/api/business/all')
         .then(response => response.json())
-        .then(data => {
-            displayStores(data); // Use a function to display stores
-        })
+        .then(data => displayStores(data))
         .catch(error => console.error('Error fetching businesses:', error));
 }
 
-function fetchEvents() {
-fetch('/api/events')
-    .then(response => response.json())
-    .then(data => {
-        const eventsContainer = document.querySelector('.event-hero');
-        eventsContainer.innerHTML = data.map(event => {
-            // Handle missing or null fields
-            const imageUrl = event.imageUrl || 'https://e7.pngegg.com/pngimages/89/1001/png-clipart-mario-party-10-wii-party-wii-u-bowser-mario-party-star-rush-donkey-kong-food-cake-decorating.png'; // Fallback image
-            const name = event.name || 'Unnamed Event';
-            const location = event.location || 'Location not available';
-
-            return `
-                <div class="event-list">
-                    <img src="${imageUrl}" alt="${name}" style="width:100px; height: 100px;"/>
-                    <h3>${name}</h3>
-                    <p>${location}</p>
-                </div>
-            `;
-        }).join('');
-    })
-    .catch(error => console.error('Error fetching events:', error));
-}
-
-function fetchGames() {
-    fetch('/api/games')
-        .then(response => response.json())
-        .then(data => {
-            const gamesContainer = document.querySelector('.games');
-            gamesContainer.innerHTML = data.map(game => `
-                <div class="game-list">
-                    <img src="${game.imageUrl}" alt="${game.name}" style="width:100px; height: 100px;"/>
-                    <h3>${game.name}</h3>
-                    <button onclick="deleteGame(${game.id})">Delete</button>
-                </div>
-            `).join('');
-        })
-        .catch(error => console.error('Error fetching games:', error));
-}
-
-function createBusinessProfile() {
-    const getInputValue = (id) => document.getElementById(id).value.trim();
-
-    const name = getInputValue('businessName');
-    const location = getInputValue('businessLocation');
-    const category = getInputValue('businessCategory');
-    const description = getInputValue('businessDescription');
-    const longitude = getInputValue('businessLongitude');
-    const latitude = getInputValue('businessLatitude');
-    const imageUrl = getInputValue('businessImageUrl');
-    const logoUrl = getInputValue('businessLogoUrl')
-
-//Trying to figure out a way to put a default image if user does not enter one
-/*    if (!imageUrl) {
-    imageUrl = 'Blank.jpg';
-    }
-
-    if (!logoUrl) {
-    logoUrl = 'Blank.jpg';
-    }*/
-
-    if (!name || !location || !category || !longitude || !latitude) {
-        alert('Please fill in all required fields.');
+// Display stores in the UI
+function displayStores(stores) {
+    const resultsDiv = document.querySelector('.business-list');
+    if (!resultsDiv) {
+        console.error('Error: .business-list container not found in the DOM.');
         return;
     }
 
-    const businessProfile = { name, location, category, description, longitude, latitude, imageUrl, logoUrl };
-
-    fetch('/api/business/addBusiness', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(businessProfile),
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            alert('Business profile created successfully');
-            fetchStores(); // Refresh the list
-        })
-        .catch(error => console.error('Error creating business profile:', error));
-}
-
-function displayStores(stores) {
-    const resultsDiv = document.getElementById('store-results');
-    resultsDiv.innerHTML = '';
-
+    console.log('Rendering stores: ', stores); // Debugging
+    resultsDiv.innerHTML = ''; // Clear previous content
     if (stores.length > 0) {
         stores.forEach(store => {
             const storeDiv = document.createElement('div');
-            storeDiv.className = 'store';
+            storeDiv.className = 'business-card';
             storeDiv.innerHTML = `
-                <h2>${store.name}</h2>
-                <img src="${store.imageUrl}" alt="${store.name}" style="width:100px; height: 100px;"/>
-                <p>Location: ${store.location}</p>
-                <p>Category: ${store.category}</p>
+                <img src="${store.imageUrl || 'https://via.placeholder.com/300x200'}" alt="${store.name || 'Store Image'}" class="business-image">
+                <h2>${store.name || 'Unnamed Store'}</h2>
+                <p>${store.description || 'Description not available'}</p>
+                <p>${store.operatingHoursSummary || 'Hours not available'}</p>
             `;
             resultsDiv.appendChild(storeDiv);
         });
     } else {
-        resultsDiv.innerHTML = '<p>No stores found</p>';
+        resultsDiv.innerHTML = '<p>No businesses found</p>';
     }
 }
+
+let currentPage = 0;
+const pageSize = 9;
+
+function fetchPagedStores(page = 0, size = 9) {
+    console.log(`Fetching page ${page} with size ${size}`); // Debugging
+    fetch(`/api/business/paged?page=${page}&size=${size}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Fetched paged stores:', data);
+            if (!data.content) {
+                console.error('Invalid data structure:', data);
+                return;
+            }
+            displayStores(data.content); // Render the stores
+            updatePagination(data.page, data.totalPages); // Update pagination controls
+        })
+        .catch(error => console.error('Error fetching paged stores:', error));
+}
+
+function updatePagination(page, totalPages) {
+    console.log(`Updating pagination: page ${page} of ${totalPages}`); // Debugging
+    currentPage = page; // Ensure this updates
+
+    const pageInfo = document.getElementById('page-info');
+    if (pageInfo) pageInfo.textContent = `Page ${page + 1}`;
+
+    const prevPageButton = document.getElementById('prev-page');
+    if (prevPageButton) prevPageButton.disabled = page === 0;
+
+    const nextPageButton = document.getElementById('next-page');
+    if (nextPageButton) nextPageButton.disabled = page + 1 >= totalPages;
+}
+
+// Function to search stores by location
+function findStoreByLocation() {
+    const location = document.getElementById('storeLocation').value.trim();
+    if (!location) {
+        alert('Please enter a location.');
+        return;
+    }
+
+    fetch(`/api/business/location?location=${encodeURIComponent(location)}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Stores by location:', data);
+            displayStores(data);
+        })
+        .catch(error => console.error('Error searching stores by location:', error));
+}
+
+// Function to search stores by name
+function findStoreByName() {
+    const name = document.getElementById('storeName').value.trim();
+    if (!name) {
+        alert('Please enter a store name.');
+        return;
+    }
+
+    fetch(`/api/business/name?name=${encodeURIComponent(name)}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Stores by name:', data);
+            displayStores(data);
+        })
+        .catch(error => console.error('Error searching stores by name:', error));
+}
+
+// Function to search stores by category
+function findStoreByCategory() {
+    const category = document.getElementById('storeCategory').value.trim();
+    if (!category) {
+        alert('Please enter a category.');
+        return;
+    }
+
+    fetch(`/api/business/category?category=${encodeURIComponent(category)}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Stores by category:', data);
+            displayStores(data);
+        })
+        .catch(error => console.error('Error searching stores by category:', error));
+}
+
+// Function to get all stores
+function getAllStores() {
+    fetchStores(); // Reuses the existing function to fetch and display all stores
+}
+
+// Function for Operating Hours
+function createOperatingHours() {
+document.getElementById('business-form').addEventListener('submit', function() {
+            const selectedDays = Array.from(document.querySelectorAll('input[name="businessDays"]:checked')).map(checkbox => checkbox.value);
+            const businessStartTime = document.getElementById('businessStartTime').value;
+            const businessEndTime = document.getElementById('businessEndTime').value;
+
+            const openingHours = {
+                days: selectedDays,
+                startTime: businessStartTime,
+                endTime: businessEndTime
+            };
+
+            console.log(openingHours);  // Log the opening hours for debugging
+
+            // Add the opening hours to a hidden input field to include in form data
+            const openingHoursInput = document.createElement('input');
+            openingHoursInput.type = 'hidden';
+            openingHoursInput.name = 'openingHours';
+            openingHoursInput.value = JSON.stringify(openingHours);
+            document.getElementById('business-form').appendChild(openingHoursInput);
+        });
+        }

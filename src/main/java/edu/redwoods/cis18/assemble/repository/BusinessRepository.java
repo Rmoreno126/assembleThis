@@ -30,6 +30,6 @@ public interface BusinessRepository extends JpaRepository<Business, Long> {
     @Query("SELECT b FROM Business b WHERE LOWER(b.name) = LOWER(:name)")
     Optional<Business> findByName(@Param("name") String name);
 
-    // Implementing Pagination which will give us a "Instagram feel"
+    // Implementing Pagination which will let us control how many business objects are returned at a time
     Page<Business> findAll(Pageable pageable);
 }

@@ -6,64 +6,107 @@
     <title>Assemble - Test Businesses</title>
     <style>
         body {
-          font-family: Arial, sans-serif;
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         .business-list {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 16px;
-          padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            padding: 20px;
         }
 
         .business-card {
-          width: 300px;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          overflow: hidden;
-          background-color: #fff;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          text-align: center;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
 
         .business-image {
-          width: 100%;
-          height: 200px;
-          object-fit: cover;
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
         }
 
         .business-card h2 {
-          font-size: 18px;
-          margin: 8px 0;
-          color: #333;
+            font-size: 18px;
+            margin: 8px 0;
+            color: #333;
         }
 
         .business-card p {
-          font-size: 14px;
-          color: #555;
-          margin: 0 8px 16px;
+            font-size: 14px;
+            color: #555;
+            margin: 0 8px 16px;
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            gap: 10px;
+        }
+
+        .pagination-container button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .pagination-container button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
     </style>
 </head>
 <body>
 <h1 style="text-align: center; margin-top: 20px;">Business Listings (Static Test)</h1>
-<div class="business-list">
-    <!-- Example Business Cards -->
-    <div class="business-card">
-        <img src="https://assets.pokemon.com/static2/_ui/img/og-default-image.jpeg" alt="Pokémon Store" class="business-image">
-        <h2>Pokémon Store</h2>
-        <p>A store for all your Pokémon needs.</p>
-    </div>
-    <div class="business-card">
-        <img src="https://assets.pokemon.com/static2/_ui/img/og-default-image.jpeg" alt="Game World" class="business-image">
-        <h2>Game World</h2>
-        <p>A place for board games and RPG enthusiasts.</p>
-    </div>
+<div class="business-list"></div>
+
+<div class="pagination-container">
+    <button id="prev-page" aria-label="Previous Page" disabled>Previous</button>
+    <span id="page-info">Page 1</span>
+    <button id="next-page" aria-label="Next Page">Next</button>
 </div>
+
+<div class="store" id="shop">
+    <h2 class="title">Find Your Store</h2>
+    <div>
+        <label for="location">Location:</label>
+        <input type="text" id="storeLocation" name="location">
+        <button id="search-by-location">Search by Location</button>
+    </div>
+    <div>
+        <label for="name">Store Name:</label>
+        <input type="text" id="storeName" name="name">
+        <button id="search-by-name">Search by Name</button>
+    </div>
+    <div>
+        <label for="category">Category:</label>
+        <input type="text" id="storeCategory" name="category">
+        <button id="search-by-category">Search by Category</button>
+    </div>
+    <div>
+        <button id="get-all-stores">Get All Stores</button> <!-- This does not work -->
+    </div>
+    <div>
+        <button onclick="getAllStores()">Get All Stores</button> <!-- This does work! -->
+    </div>
+    <div id="store-results"></div>
+</div>
+
 
 <!-- Form for creating a business profile -->
 <div class="create-business" id="create-business">
@@ -75,15 +118,108 @@
         </div>
         <div>
             <label for="businessCategory">Category:</label>
-            <input type="text" id="businessCategory" name="businessCategory" placeholder="Category">
+            <select id="businessCategory" name="businessCategory" required>
+                <option value="" disabled selected>Select Category</option>
+                <option value="Retail">Retail</option>
+                <option value="Food and Beverage">Food and Beverage</option>
+                <option value="Health">Health</option>
+                <option value="Education">Education</option>
+                <!-- Add more options as needed -->
+            </select>
         </div>
         <div>
-            <label for="businessDescription">Description:</label>
-            <input type="text" id="businessDescription" name="businessDescription" placeholder="Description">
-        </div>
-        <div>
-            <label for="businessLogoUrl">Business Logo:</label>
-            <input type="text" id="businessLogoUrl" name="LogoUrl" placeholder="Business Logo Url">
+            <label for="businessTime">Opening Hours:</label>
+            <div>
+                <label>Days:</label>
+                <div>
+                    <input type="checkbox" id="monday" name="businessDays" value="Monday">
+                    <label for="monday">Monday</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="tuesday" name="businessDays" value="Tuesday">
+                    <label for="tuesday">Tuesday</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="wednesday" name="businessDays" value="Wednesday">
+                    <label for="wednesday">Wednesday</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="thursday" name="businessDays" value="Thursday">
+                    <label for="thursday">Thursday</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="friday" name="businessDays" value="Friday">
+                    <label for="friday">Friday</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="saturday" name="businessDays" value="Saturday">
+                    <label for="saturday">Saturday</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="sunday" name="businessDays" value="Sunday">
+                    <label for="sunday">Sunday</label>
+                </div>
+            </div>
+            <div>
+                <label for="businessStartTime">Start Time:</label>
+                <select id="businessStartTime" name="businessStartTime" required>
+                    <option value="" disabled selected>Select Start Time</option>
+                    <option value="00:00">12:00 AM</option>
+                    <option value="01:00">1:00 AM</option>
+                    <option value="02:00">2:00 AM</option>
+                    <option value="03:00">3:00 AM</option>
+                    <option value="04:00">4:00 AM</option>
+                    <option value="05:00">5:00 AM</option>
+                    <option value="06:00">6:00 AM</option>
+                    <option value="07:00">7:00 AM</option>
+                    <option value="08:00">8:00 AM</option>
+                    <option value="09:00">9:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">1:00 PM</option>
+                    <option value="14:00">2:00 PM</option>
+                    <option value="15:00">3:00 PM</option>
+                    <option value="16:00">4:00 PM</option>
+                    <option value="17:00">5:00 PM</option>
+                    <option value="18:00">6:00 PM</option>
+                    <option value="19:00">7:00 PM</option>
+                    <option value="20:00">8:00 PM</option>
+                    <option value="21:00">9:00 PM</option>
+                    <option value="22:00">10:00 PM</option>
+                    <option value="23:00">11:00 PM</option>
+                </select>
+            </div>
+            <div>
+                <label for="businessEndTime">End Time:</label>
+                <select id="businessEndTime" name="businessEndTime" required>
+                    <option value="" disabled selected>Select End Time</option>
+                    <option value="00:00">12:00 AM</option>
+                    <option value="01:00">1:00 AM</option>
+                    <option value="02:00">2:00 AM</option>
+                    <option value="03:00">3:00 AM</option>
+                    <option value="04:00">4:00 AM</option>
+                    <option value="05:00">5:00 AM</option>
+                    <option value="06:00">6:00 AM</option>
+                    <option value="07:00">7:00 AM</option>
+                    <option value="08:00">8:00 AM</option>
+                    <option value="09:00">9:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">1:00 PM</option>
+                    <option value="14:00">2:00 PM</option>
+                    <option value="15:00">3:00 PM</option>
+                    <option value="16:00">4:00 PM</option>
+                    <option value="17:00">5:00 PM</option>
+                    <option value="18:00">6:00 PM</option>
+                    <option value="19:00">7:00 PM</option>
+                    <option value="20:00">8:00 PM</option>
+                    <option value="21:00">9:00 PM</option>
+                    <option value="22:00">10:00 PM</option>
+                    <option value="23:00">11:00 PM</option>
+                </select>
+            </div>
         </div>
         <div>
             <label for="businessLatitude">Latitude:</label>
@@ -105,157 +241,29 @@
             <label for="businessLocation">Address:</label>
             <input type="text" id="businessLocation" name="location" placeholder="Click on the map to select location" readonly required>
         </div>
-        <!--   <input type="hidden" id="latitude" name="latitude">
-           <input type="hidden" id="longitude" name="longitude">-->
-
         <button type="submit">Submit</button>
     </form>
     <div id="message"></div> <!-- For displaying success or error messages -->
 </div>
 <div style="padding-bottom:40px;">
+    <div id="message"></div>
+</div>
+
+<div style="padding-bottom: 40px;">
     <h2 class="title" id="games">List of Games</h2>
-    <div class="games">
-        <!-- Games will be dynamically populated here -->
-    </div>
-    <!-- Form for adding a new game -->
+    <div class="games"></div>
     <div class="game-form">
         <h2 class="title">Add a New Game</h2>
         <input type="text" id="gameName" placeholder="Game Name">
         <input type="text" id="gameType" placeholder="Game Type">
         <input type="text" id="gameImageUrl" placeholder="Image URL">
-        <button onclick="addGame()">Add Game</button>
-    </div>
-
-    <div class="store" id="shop">
-        <h2 class="title">Find Your Store</h2>
-        <div>
-            <label for="location">Location:</label>
-            <input type="text" id="storeLocation" name="location">
-            <button onclick="findStoreByLocation()">Search by Location</button>
-        </div>
-        <div>
-            <label for="name">Store Name:</label>
-            <input type="text" id="storeName" name="name">
-            <button onclick="findStoreByName()">Search by Name</button>
-        </div>
-        <div>
-            <label for="category">Category:</label>
-            <input type="text" id="storeCategory" name="category">
-            <button onclick="findStoreByCategory()">Search by Category</button>
-        </div>
-        <div>
-            <button onclick="getAllStores()">Get All Stores</button>
-        </div>
-        <div id="store-results"></div>
-    </div>
-
-<!-- External resources -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<div class="event" id="events">
-    <h2 class="title">Upcoming Events</h2>
-    <div class="event-hero" style="position: relative;">
-        <!-- Events will be dynamically populated here -->
+        <button id="add-game-btn">Add Game</button>
     </div>
 </div>
+
+<!-- External resources -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="script.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-      fetch('/api/business/paged?page=0&size=100')
-        .then(response => response.json())
-        .then(data => {
-          const businessList = document.querySelector('.business-list');
-          data.content.forEach(business => {
-            const card = document.createElement('div');
-            card.className = 'business-card';
-            card.innerHTML = `
-              <img src="${business.imageUrl}" alt="${business.name}" class="business-image">
-              <h2>${business.name}</h2>
-              <p>${business.description}</p>
-              <p>{operatingHoursSummary}</p>
-            `;
-            businessList.appendChild(card);
-          });
-        })
-        .catch(error => console.error('Error fetching businesses:', error));
-    });
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Initialize the map
-        const map = L.map('map').setView([40.7994, -124.1644], 13); // Default to Eureka
-
-        // Add OpenStreetMap tiles
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-
-        let marker;
-
-        // Click event to place a marker and get coordinates
-        map.on('click', function (e) {
-            const { lat, lng } = e.latlng;
-
-            // Place or move the marker
-            if (marker) {
-                marker.setLatLng(e.latlng);
-            } else {
-                marker = L.marker(e.latlng).addTo(map);
-            }
-
-            // Update hidden fields
-            document.getElementById('businessLatitude').value = lat;
-            document.getElementById('businessLongitude').value = lng;
-
-            // Fetch and update the address
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
-                .then(response => response.json())
-                .then(data => {
-                    const address = data.display_name || 'Address not found';
-                    document.getElementById('businessLocation').value = address;
-                })
-                .catch(error => {
-                    console.error('Error fetching address:', error);
-                    document.getElementById('businessLocation').value = 'Unable to fetch address';
-                });
-        });
-    });
-</script>
-<script>
-    document.getElementById('business-form').addEventListener('submit', function (event) {
-        event.preventDefault(); // Prevent default form submission
-
-        // Collect form data
-        const businessData = {
-            businessName: document.getElementById('businessName').value,
-            businessCategory: document.getElementById('businessCategory').value,
-            businessLocation: document.getElementById('businessLocation').value,
-            businessLatitude: document.getElementById('businessLatitude').value,
-            businessLongitude: document.getElementById('businessLongitude').value,
-            businessImageUrl: document.getElementById('businessImageUrl').value,
-            businessLogoUrl: document.getElementById('businessLogoUrl').value,
-            businessDescription: document.getElementById('businessDescription')value,
-        };
-
-        // Send POST request to backend
-        fetch('/api/business/addBusiness', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(businessData), // Send data as JSON
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Business added:', data);
-            alert('Business added successfully');
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error adding business');
-        });
-    });
-</script>
 </body>
 </html>
