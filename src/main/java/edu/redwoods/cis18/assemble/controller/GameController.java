@@ -44,4 +44,10 @@ public class GameController {
         gameService.deleteGame(id);
         return ResponseEntity.noContent().build();
     }
+
+    // Api /all endpoint for testing
+    @GetMapping("/all")
+    public List<Game> getAllOfTheGames() {
+        return gameService.getAllGames();
+    }
 }

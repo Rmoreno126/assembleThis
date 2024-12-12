@@ -14,9 +14,37 @@ public class GameService {
     @Autowired
     private GameRepository gameRepository;
 
+/*    public Game saveOrUpdateGame(Game game) {
+        return gameRepository.save(game);
+    }*/
+
+    // Testing new saveOrUpdateGame method that will not overwrite emnpty fields
     public Game saveOrUpdateGame(Game game) {
+        if (game.getId() != null) {
+            Optional<Game> existingGameOpt = gameRepository.findById(game.getId());
+            if (existingGameOpt.isPresent()) {
+                Game existingGame = existingGameOpt.get();
+                if (game.getName() != null && !game.getName().isEmpty()) {
+                    existingGame.setName(game.getName());
+                }
+                if (game.getType() != null && !game.getType().isEmpty()) {
+                    existingGame.setType(game.getType());
+                }
+                if (game.getDescription() != null && !game.getDescription().isEmpty()) {
+                    existingGame.setDescription(game.getDescription());
+                }
+                if (game.getImageUrl() != null && !game.getImageUrl().isEmpty()) {
+                    existingGame.setImageUrl(game.getImageUrl());
+                }
+                if (game.getLogoUrl() != null && !game.getLogoUrl().isEmpty()) {
+                    existingGame.setLogoUrl(game.getLogoUrl());
+                }
+                return gameRepository.save(existingGame);
+            }
+        }
         return gameRepository.save(game);
     }
+
 
     public List<Game> getAllGames() {
         return gameRepository.findAll();
@@ -27,6 +55,11 @@ public class GameService {
     }
 
     public void deleteGame(Long id) {
+        
         gameRepository.deleteById(id);
+    }
+    
+    public List<Game> getAllofTheGames() {
+        return gameRepository.findAll();
     }
 }

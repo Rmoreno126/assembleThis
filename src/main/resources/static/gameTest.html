@@ -52,6 +52,36 @@
             await fetchData(`/${id}`, 'DELETE');
             document.getElementById('output').innerText = 'Game deleted successfully.';
         }
+
+        async function getGameByQuery(type) {
+    const value = document.getElementById(type + 'Search').value.trim();
+
+    if (!value) {
+        alert('Please enter a search value.');
+        return;
+    }
+
+    let url = '';
+
+    if (type === 'name') {
+        url = `/api/game/name?name=${encodeURIComponent(value)}`;
+    } else if (type === 'category') {
+        url = `/api/business/category?category=${encodeURIComponent(value)}`;
+    }
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        // Ensure this function correctly updates the UI with fetched data
+        displayStores(data);
+
+        // For debugging purposes, output the raw data
+        document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+    } catch (error) {
+        console.error('Error fetching business:', error);
+    }
+}
     </script>
 </head>
 <body>
@@ -91,6 +121,18 @@
     <label for="deleteGameId">Game ID:</label>
     <input type="text" id="deleteGameId" placeholder="Enter game ID"><br>
     <button onclick="deleteGame()">Delete Game</button>
+</section>
+
+<section>
+    <h2>Search Games</h2>
+
+    <label for="name">By Name:</label>
+    <input type="text" id="nameSearch">
+    <button onclick="getGameByQuery('name')">Search</button><br>
+
+    <label for="category">By Category:</label>
+    <input type="text" id="categorySearch">
+    <button onclick="getGameByQuery('category')">Search</button>
 </section>
 
 <section>
