@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business API Frontend</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+    <script>
+        const apiBase = 'http://localhost:8080/api/business';
+
+        async function fetchData(endpoint, method = 'GET', body = null) {
+            try {
+                const response = await fetch(`${apiBase}${endpoint}`, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: body ? JSON.stringify(body) : null,
+                });
+                const data = await response.json();
+                console.log(data);
+                return data;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function getBusinessesPaged() {
+            const page = document.getElementById('page').value;
+            const size = document.getElementById('size').value;
+            const data = await fetchData(`/paged?page=${page}&size=${size}`);
+            document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+        }
+
+        async function getAllBusinesses() {
+            const data = await fetchData('/all');
+            document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+        }
+
+        async function addBusiness() {
+            const name = document.getElementById('name').value;
+            const location = document.getElementById('location').value;
+            const category = document.getElementById('category').value;
+            const latitude = document.getElementById('latitude').value;
+            const longitude = document.getElementById('longitude').value;
+            const description = document.getElementById('description').value;
+            const logoUrl = document.getElementById('logoUrl').value;
+            const imageUrl = document.getElementById('imageUrl').value;
+
+            const body = { name, location, category, latitude, longitude, description, logoUrl, imageUrl };
+            const data = await fetchData('/addBusiness', 'POST', body);
+            document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+        }
+
+        async function getBusinessByQuery(type) {
+    const value = document.getElementById(type + 'Search').value.trim();
+
+    if (!value) {
+        alert('Please enter a search value.');
+        return;
+    }
+
+    let url = '';
+
+    if (type === 'location') {
+        url = `/api/business/location?location=${encodeURIComponent(value)}`;
+    } else if (type === 'name') {
+        url = `/api/business/name?name=${encodeURIComponent(value)}`;
+    } else if (type === 'category') {
+        url = `/api/business/category?category=${encodeURIComponent(value)}`;
+    }
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        // Ensure this function correctly updates the UI with fetched data
+        displayStores(data);
+
+        // For debugging purposes, output the raw data
+        document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+    } catch (error) {
+        console.error('Error fetching business:', error);
+    }
+}
+
+        async function getBusinessById() {
+            const id = document.getElementById('businessId').value;
+            const data = await fetchData(`/${id}`);
+            document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+        }
+    </script>
+</head>
+<body>
+    <h1>Business API Frontend</h1>
+
+    <section>
+        <h2>Get Paged Businesses</h2>
+        <label for="page">Page:</label>
+        <input type="number" id="page" value="0">
+        <label for="size">Size:</label>
+        <input type="number" id="size" value="10">
+        <button onclick="getBusinessesPaged()">Fetch</button>
+    </section>
+
+    <section>
+        <h2>Get All Businesses</h2>
+        <button onclick="getAllBusinesses()">Fetch</button>
+    </section>
+
+    <section>
+        <h2>Add a Business</h2>
+        <label for="name">Name:</label>
+        <input type="text" id="name">
+        <div>
+            <h3>Select Business Location</h3>
+            <div id="map" style="height: 400px; margin-bottom: 20px;"></div>
+        </div>
+        <input type="text" id="location">
+        <div>
+            <label for="category">Category:</label>
+            <select id="category" name="category" required>
+                <option value="" disabled selected>Select Category</option>
+                <option value="Retail">Retail</option>
+                <option value="Food and Beverage">Food and Beverage</option>
+                <option value="Health">Health</option>
+                <option value="Education">Education</option>
+                <!-- Add more options as needed -->
+            </select>
+        </div>
+        <label for="latitude">Latitude:</label>
+        <input type="text" id="latitude">
+        <label for="longitude">Longitude:</label>
+        <input type="text" id="longitude">
+        <label for="description">Description:</label>
+        <input type="text" id="description">
+        <label for="logoUrl">Logo URL:</label>
+        <input type="text" id="logoUrl">
+        <label for="imageUrl">Image URL:</label>
+        <input type="text" id="imageUrl">
+        <button onclick="addBusiness()">Add</button>
+    </section>
+
+    <section>
+        <h2>Search Businesses</h2>
+        <label for="location">By Location:</label>
+        <input type="text" id="locationSearch">
+        <button onclick="getBusinessByQuery('location')">Search</button><br>
+        
+        <label for="name">By Name:</label>
+        <input type="text" id="nameSearch">
+        <button onclick="getBusinessByQuery('name')">Search</button><br>
+
+        <label for="category">By Category:</label>
+        <input type="text" id="categorySearch">
+        <button onclick="getBusinessByQuery('category')">Search</button>
+    </section>
+
+    <section>
+        <h2>Get Business by ID</h2>
+        <label for="businessId">ID:</label>
+        <input type="number" id="businessId">
+        <button onclick="getBusinessById()">Fetch</button>
+    </section>
+
+    <section>
+        <h2>Output</h2>
+        <pre id="output" style="border: 1px solid #000; padding: 10px; white-space: pre-wrap; background: #f0f0f0;"></pre>
+    </section>
+</body>
+</html>

@@ -56,18 +56,18 @@ public class BusinessController {
     }
 
     @GetMapping("/location")
-    public List<Business> getStoresByLocation(@RequestParam String location) {
-        return businessService.findStoreByLocation(location);
+    public List<Business> getBusinessByLocation(@RequestParam String location) {
+        return businessService.findBusinessByLocation(location);
     }
 
     @GetMapping("/name")
-    public List<Business> getStoreByName(@RequestParam String name) {
-        return businessService.findStoreByName(name);
+    public List<Business> getBusinessByName(@RequestParam String name) {
+        return businessService.findBusinessByName(name);
     }
 
     @GetMapping("/category")
-    public List<Business> getStoresByCategory(@RequestParam String category) {
-        return businessService.findStoreByCategory(category);
+    public List<Business> getBusinessByCategory(@RequestParam String category) {
+        return businessService.findBusinessByCategory(category);
     }
 
     @GetMapping("/{id}")

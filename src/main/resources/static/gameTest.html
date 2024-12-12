@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game API Frontend</title>
+    <script>
+        const apiBase = 'http://localhost:8080/api/games';
+
+        async function fetchData(endpoint, method = 'GET', body = null) {
+            try {
+                const response = await fetch(`${apiBase}${endpoint}`, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: body ? JSON.stringify(body) : null,
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function saveOrUpdateGame() {
+            const id = document.getElementById('gameId').value;
+            const name = document.getElementById('gameName').value;
+            const type = document.getElementById('gameType').value;
+            const description = document.getElementById('gameDescription').value;
+            const imageUrl = document.getElementById('gameImageUrl').value;
+            const logoUrl = document.getElementById('gameLogoUrl').value;
+
+
+            const game = { id, name, type, description, imageUrl, logoUrl };
+            const data = await fetchData('', 'POST', game);
+            document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+        }
+
+        async function getAllGames() {
+            const data = await fetchData('');
+            document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+        }
+
+        async function getGameById() {
+            const id = document.getElementById('searchGameId').value;
+            const data = await fetchData(`/${id}`);
+            document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+        }
+
+        async function deleteGame() {
+            const id = document.getElementById('deleteGameId').value;
+            await fetchData(`/${id}`, 'DELETE');
+            document.getElementById('output').innerText = 'Game deleted successfully.';
+        }
+    </script>
+</head>
+<body>
+<h1>Game API Frontend</h1>
+
+<section>
+    <h2>Create or Update a Game</h2>
+    <label for="gameId">Game ID:</label>
+    <input type="text" id="gameId" placeholder="Leave empty for new game"><br>
+    <label for="gameName">Name:</label>
+    <input type="text" id="gameName" placeholder="Game name"><br>
+    <label for="gameType">Game Type:</label>
+    <input type="text" id="gameType" placeholder="Game type"><br>
+    <label for="gameDescription">Description:</label>
+    <input type="text" id="gameDescription" placeholder="Game description"><br>
+    <label for="gameImageUrl">ImageURL:</label>
+    <input type="text" id="gameImageUrl" placeholder="Game image URL"><br>
+    <label for="gameLogoUrl">LogoURL:</label>
+    <input type="text" id="gameLogoUrl" placeholder="Game logo URL"><br>
+    <button onclick="saveOrUpdateGame()">Save or Update Game</button>
+</section>
+
+<section>
+    <h2>Get All Games</h2>
+    <button onclick="getAllGames()">Get All Games</button>
+</section>
+
+<section>
+    <h2>Get Game by ID</h2>
+    <label for="searchGameId">Game ID:</label>
+    <input type="text" id="searchGameId" placeholder="Enter game ID"><br>
+    <button onclick="getGameById()">Get Game</button>
+</section>
+
+<section>
+    <h2>Delete Game by ID</h2>
+    <label for="deleteGameId">Game ID:</label>
+    <input type="text" id="deleteGameId" placeholder="Enter game ID"><br>
+    <button onclick="deleteGame()">Delete Game</button>
+</section>
+
+<section>
+    <h2>Output</h2>
+    <pre id="output"></pre>
+</section>
+</body>
+</html>

@@ -25,6 +25,9 @@ public class Game {
     @Column(nullable = true)
     private String imageUrl;
 
+    @Column(nullable = true)
+    private String logoUrl;
+
     @Column(length = 500) // Set a reasonable length for the description
     private String description; // Brief description of the game
 
@@ -36,10 +39,11 @@ public class Game {
     public Game() {
     }
 
-    public Game(String name, String type, String imageUrl, String description) {
+    public Game(String name, String type, String imageUrl, String logoUrl, String description) {
         this.name = name;
         this.type = type;
         this.imageUrl = imageUrl;
+        this.logoUrl = logoUrl;
         this.description = description;
     }
 
@@ -92,6 +96,14 @@ public class Game {
         this.businesses = businesses;
     }
 
+    public String getLogoUrl() {
+        return logoUrl;
+    }
+
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
+    }
+
     @Override
     public String toString() {
         return "Game{" +
@@ -99,7 +111,9 @@ public class Game {
                 ", name='" + name + '\'' +
                 ", type='" + type + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
+                ", logoUrl='" + logoUrl + '\'' +
                 ", description='" + description + '\'' +
                 '}';
     }
+
 }

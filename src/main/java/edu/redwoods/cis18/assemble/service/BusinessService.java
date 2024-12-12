@@ -26,11 +26,11 @@ public class BusinessService {
         return businessRepository.save(business);
     }
 
-    public List<Business> findStoreByLocation(String location) {
+    public List<Business> findBusinessByLocation(String location) {
         return businessRepository.findByLocation(location);
     }
 
-    public List<Business> findStoreByName(String name) {
+    public List<Business> findBusinessByName(String name) {
         List<Business> businesses = businessRepository.findAllByName(name);
         if (businesses.isEmpty()) {
             throw new RuntimeException("No businesses found with name: " + name);
@@ -38,11 +38,11 @@ public class BusinessService {
         return businesses;
     }
 
-    public List<Business> findStoreByCategory(String category) {
+    public List<Business> findBusinessByCategory(String category) {
         return businessRepository.findByCategory(category);
     }
 
     public Optional<Business> getBusinessById(Long id) {
-        return Optional.empty();
+        return businessRepository.findById(id);
     }
 }
