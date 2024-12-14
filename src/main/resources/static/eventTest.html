@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin: 5px 0;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+<h1>Event Test</h1>
+
+<section>
+    <h2>Create or Update Event</h2>
+    <form id="saveOrUpdateForm">
+        <label for="eventId">Event ID (optional):</label>
+        <input type="number" id="eventId" name="eventId">
+
+        <label for="eventName">Event Name:</label>
+        <input type="text" id="eventName" name="eventName" required>
+
+        <label for="eventDescription">Event Description:</label>
+        <textarea id="eventDescription" name="eventDescription" required></textarea>
+
+        <label for="eventLocation">Event Location:</label>
+        <input type="text" id="eventLocation" name="eventLocation" required>
+
+        <label for="eventDate">Event Date:</label>
+        <input type="date" id="eventDate" name="eventDate" required>
+
+        <label for="eventTime">Event Time:</label>
+        <input type="time" id="eventTime" name="eventTime" required>
+
+        <label for="eventImageUrl">Event Image URL:</label>
+        <input type="url" id="eventImageUrl" name="eventImageUrl">
+
+        <label for="eventGames">Select Games:</label>
+        <select id="eventGames" name="eventGames" multiple></select>
+        <button id="addGameButton" type="button">Add New Game</button>
+
+        <label for="eventHost">Host ID:</label>
+        <input type="number" id="eventHost" name="eventHost" required>
+
+        <button type="submit">Save/Update Event</button>
+    </form>
+</section>
+
+<section>
+    <h2>Get All Events</h2>
+    <button id="getAllEvents">Fetch All Events</button>
+    <div id="eventsList" class="response"></div>
+</section>
+
+<section>
+    <h2>Get Event By ID</h2>
+    <form id="getEventByIdForm">
+        <label for="fetchEventId">Event ID:</label>
+        <input type="number" id="fetchEventId" name="fetchEventId" required>
+
+        <button type="submit">Fetch Event</button>
+    </form>
+    <div id="eventDetails" class="response"></div>
+</section>
+
+<section>
+    <h2>Delete Event</h2>
+    <form id="deleteEventForm">
+        <label for="deleteEventId">Event ID:</label>
+        <input type="number" id="deleteEventId" name="deleteEventId" required>
+
+        <button type="submit">Delete Event</button>
+    </form>
+</section>
+
+<script>
+    const apiUrl = '/api/events';
+    const gamesUrl = '/api/games';
+
+    // Fetch existing games and populate the dropdown
+    async function fetchGames() {
+        const response = await fetch(gamesUrl);
+        const games = await response.json();
+
+        const gamesDropdown = document.getElementById('eventGames');
+        games.forEach(game => {
+            const option = document.createElement('option');
+            option.value = game.id;
+            option.textContent = game.name;
+            gamesDropdown.appendChild(option);
+        });
+    }
+
+    // Call fetchGames on page load
+    fetchGames();
+
+    // Save or Update Event
+document.getElementById('saveOrUpdateForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('eventId').value;
+    const name = document.getElementById('eventName').value;
+    const description = document.getElementById('eventDescription').value;
+    const location = document.getElementById('eventLocation').value;
+    const date = document.getElementById('eventDate').value;
+    const time = document.getElementById('eventTime').value;
+    const imageUrl = document.getElementById('eventImageUrl').value;
+    const selectedGames = Array.from(document.getElementById('eventGames').selectedOptions).map(option => ({ id: option.value }));
+    const hostId = document.getElementById('eventHost').value;
+
+    const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, name, description, location, date, time, imageUrl, games: selectedGames, host: { id: hostId } })
+    });
+
+    const result = await response.json();
+    alert('Event saved/updated: ' + JSON.stringify(result));
+});
+
+    // Fetch All Events
+    document.getElementById('getAllEvents').addEventListener('click', async () => {
+        const response = await fetch(apiUrl);
+        const events = await response.json();
+
+        const formattedEvents = events.map(event => (
+            `ID: ${event.id}\n` +
+            `Name: ${event.name}\n` +
+            `Description: ${event.description}\n` +
+            `Location: ${event.location}\n` +
+            `Date: ${event.date}\n` +
+            `Time: ${event.time}\n` +
+            `Host: ${event.host.name} (${event.host.email})\n` +
+            `Games: ${event.games.map(game => game.name).join(', ') || 'None'}\n` +
+            `\n---\n`
+        )).join('');
+
+        document.getElementById('eventsList').textContent = formattedEvents;
+    });
+
+    // Fetch Event By ID
+    document.getElementById('getEventByIdForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('fetchEventId').value;
+
+        const response = await fetch(`${apiUrl}/${id}`);
+        if (response.ok) {
+            const event = await response.json();
+            document.getElementById('eventDetails').textContent = (
+                `ID: ${event.id}\n` +
+                `Name: ${event.name}\n` +
+                `Description: ${event.description}\n` +
+                `Location: ${event.location}\n` +
+                `Date: ${event.date}\n` +
+                `Time: ${event.time}\n` +
+                `Host: ${event.host.name} (${event.host.email})\n` +
+                `Games: ${event.games.map(game => game.name).join(', ') || 'None'}\n`
+            );
+        } else {
+            document.getElementById('eventDetails').textContent = 'Event not found';
+        }
+    });
+
+    // Delete Event
+    document.getElementById('deleteEventForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('deleteEventId').value;
+
+        const response = await fetch(`${apiUrl}/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            alert('Event deleted');
+        } else {
+            alert('Failed to delete event');
+        }
+    });
+
+    // Add New Game
+    document.getElementById('addGameButton').addEventListener('click', () => {
+        window.location.href = '/gameTest.html'; // Redirect to a new game creation page
+    });
+</script>
+</body>
+</html>

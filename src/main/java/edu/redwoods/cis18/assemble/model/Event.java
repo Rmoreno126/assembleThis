@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Event {
@@ -15,6 +17,10 @@ public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank(message = "Location is needed!")
+    @Column(nullable = true)
+    private String location; // Address or general location
 
     @NotBlank(message = "Event name is required")
     @Size(max = 100, message = "Event name cannot exceed 100 characters")
@@ -34,8 +40,9 @@ public class Event {
     @Column(nullable = false)
     private LocalTime time; // Time of the event
 
+    //Changed business to be nullable because users need to be able to host their own events!
     @ManyToOne
-    @JoinColumn(name = "business_id", nullable = false)
+    @JoinColumn(name = "business_id", nullable = true)
     @JsonIgnore
     private Business business; // The business hosting the event
 
@@ -43,12 +50,21 @@ public class Event {
     @JoinColumn(name = "host_id", nullable = false)
     private User host; // The user hosting the event
 
+    @ManyToMany
+    @JoinTable(
+            name = "event_games",
+            joinColumns = @JoinColumn(name = "event_id"),
+            inverseJoinColumns = @JoinColumn(name = "game_id")
+    )
+    private List<Game> games = new ArrayList<>(); // Games associated with the event
+
     // Constructors
     public Event() {
     }
 
-    public Event(String name, String description, String imageUrl, LocalDate date, LocalTime time, Business business, User host) {
+    public Event(String name, String location, String description, String imageUrl, LocalDate date, LocalTime time, Business business, User host) {
         this.name = name;
+        this.location = location;
         this.description = description;
         this.imageUrl = imageUrl;
         this.date = date;
@@ -127,6 +143,7 @@ public class Event {
         return "Event{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", location='" + location + '\'' +
                 ", description='" + description + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
                 ", date=" + date +
@@ -134,5 +151,21 @@ public class Event {
                 ", business=" + (business != null ? business.getName() : "null") +
                 ", host=" + (host != null ? host.getName() : "null") +
                 '}';
+    }
+
+    public @NotBlank(message = "Location is needed!") String getLocation() {
+        return location;
+    }
+
+    public void setLocation(@NotBlank(message = "Location is needed!") String location) {
+        this.location = location;
+    }
+
+    public List<Game> getGames() {
+        return games;
+    }
+
+    public void setGames(List<Game> games) {
+        this.games = games;
     }
 }
