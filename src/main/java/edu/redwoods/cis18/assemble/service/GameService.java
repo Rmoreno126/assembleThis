@@ -1,6 +1,8 @@
 package edu.redwoods.cis18.assemble.service;
 
+import edu.redwoods.cis18.assemble.model.Business;
 import edu.redwoods.cis18.assemble.model.Game;
+import edu.redwoods.cis18.assemble.repository.BusinessRepository;
 import edu.redwoods.cis18.assemble.repository.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,11 +16,12 @@ public class GameService {
     @Autowired
     private GameRepository gameRepository;
 
-/*    public Game saveOrUpdateGame(Game game) {
-        return gameRepository.save(game);
-    }*/
+    //@Autowired
+    public GameService(GameRepository gameRepository) {
+        this.gameRepository = gameRepository;
+    }
 
-    // Testing new saveOrUpdateGame method that will not overwrite emnpty fields
+    // New saveOrUpdateGame method that will not overwrite empty fields
     public Game saveOrUpdateGame(Game game) {
         if (game.getId() != null) {
             Optional<Game> existingGameOpt = gameRepository.findById(game.getId());
@@ -45,6 +48,14 @@ public class GameService {
         return gameRepository.save(game);
     }
 
+    public List<Game> findGameByName(String name) {
+        List<Game> games = gameRepository.findAllByName(name);
+        if (games.isEmpty()) {
+            throw new RuntimeException("No games found with name: " + name);
+        }
+        return games;
+    }
+
 
     public List<Game> getAllGames() {
         return gameRepository.findAll();
@@ -61,5 +72,13 @@ public class GameService {
     
     public List<Game> getAllofTheGames() {
         return gameRepository.findAll();
+    }
+
+
+    public List<Game> findGamesByType(String type) {
+        List<Game> games = gameRepository.findAllByType(type);
+        if (games.isEmpty()) {
+            throw new RuntimeException("No games found with type: " + type);
+        } return games;
     }
 }

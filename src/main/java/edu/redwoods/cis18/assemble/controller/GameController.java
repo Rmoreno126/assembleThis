@@ -1,5 +1,6 @@
 package edu.redwoods.cis18.assemble.controller;
 
+import edu.redwoods.cis18.assemble.model.Business;
 import edu.redwoods.cis18.assemble.model.Game;
 import edu.redwoods.cis18.assemble.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,5 +50,17 @@ public class GameController {
     @GetMapping("/all")
     public List<Game> getAllOfTheGames() {
         return gameService.getAllGames();
+    }
+
+    // API /name endpoint
+    @GetMapping("/name")
+    public List<Game> getGameByName(@RequestParam String name) {
+        return gameService.findGameByName(name);
+    }
+
+    // API /type endpoint
+    @GetMapping("/type")
+    public List<Game> getGamesByType(@RequestParam String type) {
+        return gameService.findGamesByType(type);
     }
 }

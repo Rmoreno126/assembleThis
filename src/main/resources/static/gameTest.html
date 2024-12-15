@@ -30,7 +30,6 @@
             const imageUrl = document.getElementById('gameImageUrl').value;
             const logoUrl = document.getElementById('gameLogoUrl').value;
 
-
             const game = { id, name, type, description, imageUrl, logoUrl };
             const data = await fetchData('', 'POST', game);
             document.getElementById('output').innerText = JSON.stringify(data, null, 2);
@@ -54,34 +53,53 @@
         }
 
         async function getGameByQuery(type) {
-    const value = document.getElementById(type + 'Search').value.trim();
+            const value = document.getElementById(type + 'Search').value.trim();
 
-    if (!value) {
-        alert('Please enter a search value.');
-        return;
-    }
+            if (!value) {
+                alert('Please enter a search value.');
+                return;
+            }
 
-    let url = '';
+            let url = '';
 
-    if (type === 'name') {
-        url = `/api/game/name?name=${encodeURIComponent(value)}`;
-    } else if (type === 'category') {
-        url = `/api/business/category?category=${encodeURIComponent(value)}`;
-    }
+            if (type === 'name') {
+                url = `/api/games/name?name=${encodeURIComponent(value)}`;
+            } else if (type === 'type') {
+                url = `/api/games/type?type=${encodeURIComponent(value)}`;
+            }
 
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
 
-        // Ensure this function correctly updates the UI with fetched data
-        displayStores(data);
+                // Ensure this function correctly updates the UI with fetched data
+                displayResults(data);
 
-        // For debugging purposes, output the raw data
-        document.getElementById('output').innerText = JSON.stringify(data, null, 2);
-    } catch (error) {
-        console.error('Error fetching business:', error);
-    }
-}
+                // For debugging purposes, output the raw data
+                document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+            } catch (error) {
+                console.error('Error fetching games:', error);
+            }
+        }
+
+        function displayResults(games) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = ''; // Clear previous results
+            if (games.length === 0) {
+                resultsDiv.innerHTML = '<p>No games found.</p>';
+            } else {
+                games.forEach(game => {
+                    const gameDiv = document.createElement('div');
+                    gameDiv.classList.add('game');
+                    gameDiv.innerHTML = `
+                        <h3>${game.name}</h3>
+                        <p>Type: ${game.type}</p>
+                        <p>Description: ${game.description}</p>
+                    `;
+                    resultsDiv.appendChild(gameDiv);
+                });
+            }
+        }
     </script>
 </head>
 <body>
@@ -130,14 +148,15 @@
     <input type="text" id="nameSearch">
     <button onclick="getGameByQuery('name')">Search</button><br>
 
-    <label for="category">By Category:</label>
-    <input type="text" id="categorySearch">
-    <button onclick="getGameByQuery('category')">Search</button>
+    <label for="type">By Type:</label>
+    <input type="text" id="typeSearch">
+    <button onclick="getGameByQuery('type')">Search</button>
 </section>
 
 <section>
     <h2>Output</h2>
     <pre id="output"></pre>
+    <div id="results"></div>
 </section>
 </body>
 </html>
