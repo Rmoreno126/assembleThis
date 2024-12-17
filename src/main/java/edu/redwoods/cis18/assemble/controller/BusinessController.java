@@ -88,4 +88,10 @@ public class BusinessController {
             return ResponseEntity.status(404).body(new ApiResponse<>(false, null, "Business not found."));
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBusiness(@PathVariable Long id) {
+        businessService.deleteBusiness(id);
+        return ResponseEntity.noContent().build();
+    }
 }

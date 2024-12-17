@@ -91,6 +91,68 @@
             const data = await fetchData(`/${id}`);
             document.getElementById('output').innerText = JSON.stringify(data, null, 2);
         }
+
+        async function deleteBusiness() {
+    const id = document.getElementById('deleteBusinessId').value.trim();
+
+    if (!id) {
+        alert('Please enter a business ID.');
+        return;
+    }
+
+    const url = `/api/business/${id}`;
+
+    try {
+        const response = await fetch(url, { method: 'DELETE' });
+        if (!response.ok) {
+            throw new Error('Failed to delete business');
+        }
+        document.getElementById('output').innerText = `Business with ID ${id} deleted successfully.`;
+    } catch (error) {
+        console.error('Error deleting business:', error);
+        document.getElementById('output').innerText = `Error deleting business: ${error.message}`;
+    }
+}
+    document.addEventListener("DOMContentLoaded", function () {
+        // Initialize the map
+        const map = L.map('map').setView([40.7994, -124.1644], 13); // Default to Eureka
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        let marker;
+
+        // Click event to place a marker and get coordinates
+        map.on('click', function (e) {
+            const { lat, lng } = e.latlng;
+
+            // Place or move the marker
+            if (marker) {
+                marker.setLatLng(e.latlng);
+            } else {
+                marker = L.marker(e.latlng).addTo(map);
+            }
+
+            // Update hidden fields
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+
+            // Fetch and update the address
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                .then(response => response.json())
+                .then(data => {
+                    const address = data.display_name || 'Address not found';
+                    document.getElementById('location').value = address;
+                })
+                .catch(error => {
+                    console.error('Error fetching address:', error);
+                    document.getElementById('businessLocation').value = 'Unable to fetch address';
+                });
+        });
+    });
+
     </script>
 </head>
 <body>
@@ -127,6 +189,9 @@
                 <option value="Food and Beverage">Food and Beverage</option>
                 <option value="Health">Health</option>
                 <option value="Education">Education</option>
+                <option value="Lan Center">LAN Center</option>
+                <option value="Arcade">Arcade</option>
+                <option value="Lounge">Lounge</option>
                 <!-- Add more options as needed -->
             </select>
         </div>
@@ -163,6 +228,13 @@
         <label for="businessId">ID:</label>
         <input type="number" id="businessId">
         <button onclick="getBusinessById()">Fetch</button>
+    </section>
+
+    <section>
+        <h2>Delete a Business</h2>
+        <label for="deleteBusinessId">Business ID:</label>
+        <input type="number" id="deleteBusinessId" placeholder="Enter business ID">
+        <button onclick="deleteBusiness()">Delete Business</button>
     </section>
 
     <section>

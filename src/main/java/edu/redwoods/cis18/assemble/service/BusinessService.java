@@ -45,4 +45,8 @@ public class BusinessService {
     public Optional<Business> getBusinessById(Long id) {
         return businessRepository.findById(id);
     }
+
+    public void deleteBusiness(Long id) {
+        businessRepository.deleteById(id);
+    }
 }

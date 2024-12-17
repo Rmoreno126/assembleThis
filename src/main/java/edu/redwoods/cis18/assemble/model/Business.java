@@ -25,7 +25,7 @@ public class Business {
 
     private String category; // e.g., game store, cafe, etc.
 
-    @Column(nullable = true)
+    @Column(nullable = true, length = 1000)
     private String description; // Description of the business
 
     @Column(nullable = true, length = 1000)
