@@ -4,9 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Entity
@@ -59,19 +64,69 @@ public class Business {
     )
     private List<Game> games = new ArrayList<>(); // Games associated with the business
 
-    // Derived field for business hours
+    // New operatingHoursSummary method to return more readable format
     @Transient
     public String getOperatingHoursSummary() {
         if (operatingHours == null || operatingHours.isEmpty()) {
             return "Hours not available";
         }
 
-        // Group by day of week and summarize hours
-        return operatingHours.stream()
+        // Sort and group by day of the week
+        List<OperatingHours> sortedHours = operatingHours.stream()
                 .sorted(Comparator.comparing(OperatingHours::getDayOfWeek))
-                .map(hours -> hours.getDayOfWeek() + ": " + hours.getOpenTime() + "-" + hours.getCloseTime())
-                .collect(Collectors.joining(", "));
+                .collect(Collectors.toList());
+
+        StringBuilder summary = new StringBuilder();
+        String openTime = formatTime(sortedHours.get(0).getOpenTime().toString());
+        String closeTime = formatTime(sortedHours.get(0).getCloseTime().toString());
+        String currentRange = getAbbreviatedDay(sortedHours.get(0).getDayOfWeek());
+
+        for (int i = 1; i < sortedHours.size(); i++) {
+            OperatingHours current = sortedHours.get(i);
+            OperatingHours previous = sortedHours.get(i - 1);
+
+            if (current.getOpenTime().equals(previous.getOpenTime()) &&
+                    current.getCloseTime().equals(previous.getCloseTime())) {
+                // Extend the current range to include the current day
+                if (!currentRange.contains(" - ")) {
+                    currentRange += " - " + getAbbreviatedDay(current.getDayOfWeek());
+                } else {
+                    currentRange = currentRange.split(" - ")[0] + " - " + getAbbreviatedDay(current.getDayOfWeek());
+                }
+            } else {
+                // Finalize the current range and hours
+                summary.append(currentRange).append(" ")
+                        .append(openTime).append(" to ").append(closeTime).append(", ");
+
+                // Start a new range
+                currentRange = getAbbreviatedDay(current.getDayOfWeek());
+                openTime = formatTime(current.getOpenTime().toString());
+                closeTime = formatTime(current.getCloseTime().toString());
+            }
+        }
+
+// Finalize the last range and hours
+        summary.append(currentRange).append(" ")
+                .append(openTime).append(" to ").append(closeTime);
+
+
+        return summary.toString();
     }
+
+    private String getAbbreviatedDay(DayOfWeek dayOfWeek) {
+        return dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+    }
+
+    private String formatTime(String time) {
+        try {
+            SimpleDateFormat sdf24 = new SimpleDateFormat("HH:mm");
+            SimpleDateFormat sdf12 = new SimpleDateFormat("h:mma");
+            return sdf12.format(sdf24.parse(time)).toLowerCase();
+        } catch (ParseException e) {
+            return time;
+        }
+    }
+
 
     // Constructors, getters, and setters
     public Business() {

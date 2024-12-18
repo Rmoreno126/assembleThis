@@ -28,7 +28,7 @@ public class Game {
     @Column(nullable = true)
     private String logoUrl;
 
-    @Column(length = 500) // Set a reasonable length for the description
+    @Column(length = 1000) // Set a reasonable length for the description
     private String description; // Brief description of the game
 
     @ManyToMany(mappedBy = "games", fetch = FetchType.LAZY)
