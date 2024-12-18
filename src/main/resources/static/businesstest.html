@@ -22,6 +22,255 @@
 
         label {
             display: block;
+            margin: 5px 0;
+        }
+
+        input, textarea, select, button {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        #map {
+            width: 100%;
+            height: 400px;
+            margin: 0 auto 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+<h1>Business API Frontend</h1>
+
+<section>
+    <h2>Add or Update Business</h2>
+    <form id="businessForm">
+        <label for="businessId">Business ID (optional):</label>
+        <input type="number" id="businessId" name="businessId" placeholder="Leave blank for new business">
+
+        <label for="name">Business Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="location">Location Address:</label>
+        <input type="text" id="location" name="location" required>
+
+        <h3>Select Business Location</h3>
+        <div id="map"></div>
+
+        <label for="latitude">Latitude:</label>
+        <input type="text" id="latitude" name="latitude" readonly>
+
+        <label for="longitude">Longitude:</label>
+        <input type="text" id="longitude" name="longitude" readonly>
+
+        <label for="category">Category:</label>
+        <select id="category" name="category" required>
+            <option value="">Select Category</option>
+            <option value="Arcade">Arcade</option>
+            <option value="Board Game Store">Board Game Store</option>
+            <option value="Card Shop">Card Shop</option>
+            <!-- Add more categories as needed -->
+        </select>
+
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea>
+
+        <label for="logoUrl">Logo URL:</label>
+        <input type="url" id="logoUrl" name="logoUrl">
+
+        <label for="imageUrl">Image URL:</label>
+        <input type="url" id="imageUrl" name="imageUrl">
+
+        <button type="submit">Save/Update Business</button>
+    </form>
+</section>
+
+<section>
+    <h2>View All Businesses</h2>
+    <button id="fetchAllBusinesses">Fetch All Businesses</button>
+    <div id="businessList" class="response"></div>
+</section>
+
+<section>
+    <h2>Search Businesses</h2>
+    <form id="searchForm">
+        <label for="searchQuery">Search by Name:</label>
+        <input type="text" id="searchByName" name="searchByName" placeholder="Enter name">
+        <button id="searchNameButton">Search by Name</button>
+
+        <label for="searchByLocation">Search by Location:</label>
+        <input type="text" id="searchByLocation" name="searchByLocation" placeholder="Enter location">
+        <button id="searchLocationButton">Search by Location</button>
+
+        <label for="searchByCategory">Search by Category:</label>
+        <input type="text" id="searchByCategory" name="searchByCategory" placeholder="Enter category">
+        <button id="searchCategoryButton">Search by Category</button>
+    </form>
+    <div id="searchResults" class="response"></div>
+</section>
+
+<section>
+    <h2>Delete a Business</h2>
+    <form id="deleteForm">
+        <label for="deleteBusinessId">Business ID:</label>
+        <input type="number" id="deleteBusinessId" name="deleteBusinessId" required>
+        <button type="submit">Delete Business</button>
+    </form>
+</section>
+
+<script>
+    const apiUrl = '/api/business';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const map = L.map('map').setView([40.7994, -124.1644], 13); // Default to Eureka, CA
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+        }).addTo(map);
+
+        let marker;
+
+        map.on('click', (e) => {
+            const { lat, lng } = e.latlng;
+            if (marker) {
+                marker.setLatLng(e.latlng);
+            } else {
+                marker = L.marker(e.latlng).addTo(map);
+            }
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    document.getElementById('location').value = data.display_name || 'Address not found';
+                })
+                .catch((error) => console.error('Error fetching address:', error));
+        });
+    });
+
+    document.getElementById('businessForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('businessId').value;
+        const name = document.getElementById('name').value;
+        const location = document.getElementById('location').value;
+        const category = document.getElementById('category').value;
+        const latitude = document.getElementById('latitude').value;
+        const longitude = document.getElementById('longitude').value;
+        const description = document.getElementById('description').value;
+        const logoUrl = document.getElementById('logoUrl').value;
+        const imageUrl = document.getElementById('imageUrl').value;
+
+        const payload = { id, name, location, category, latitude, longitude, description, logoUrl, imageUrl };
+
+        const response = await fetch(`${apiUrl}/addBusiness`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+        alert(`Business created/updated: ${JSON.stringify(result)}`);
+    });
+
+    document.getElementById('fetchAllBusinesses').addEventListener('click', async () => {
+        const response = await fetch(`${apiUrl}/all`);
+        const data = await response.json();
+        document.getElementById('businessList').textContent = JSON.stringify(data, null, 2);
+    });
+
+    document.getElementById('searchNameButton').addEventListener('click', async (e) => {
+        e.preventDefault();
+        const query = document.getElementById('searchByName').value;
+        const response = await fetch(`${apiUrl}/name?name=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        document.getElementById('searchResults').textContent = JSON.stringify(data, null, 2);
+    });
+
+    document.getElementById('searchLocationButton').addEventListener('click', async (e) => {
+        e.preventDefault();
+        const query = document.getElementById('searchByLocation').value;
+        const response = await fetch(`${apiUrl}/location?location=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        document.getElementById('searchResults').textContent = JSON.stringify(data, null, 2);
+    });
+
+    document.getElementById('searchCategoryButton').addEventListener('click', async (e) => {
+        e.preventDefault();
+        const query = document.getElementById('searchByCategory').value;
+        const response = await fetch(`${apiUrl}/category?category=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        document.getElementById('searchResults').textContent = JSON.stringify(data, null, 2);
+    });
+
+    document.getElementById('deleteForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('deleteBusinessId').value;
+        const response = await fetch(`${apiUrl}/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+            alert(`Business with ID ${id} deleted successfully.`);
+        } else {
+            alert('Failed to delete business.');
+        }
+    });
+</script>
+</body>
+</html>
+
+<!--
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business API Frontend</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        section {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
             margin: 10px 0 5px;
         }
 
@@ -74,7 +323,7 @@
 <body>
 <h1>Business API Frontend</h1>
 
-<!-- Add Business Section -->
+&lt;!&ndash; Add Business Section &ndash;&gt;
 <section>
     <h2>Add a Business</h2>
     <label for="name">Name:</label>
@@ -126,13 +375,13 @@
     </div>
 </section>
 
-<!-- List All Businesses Section -->
+&lt;!&ndash; List All Businesses Section &ndash;&gt;
 <section>
     <h2>List All Businesses</h2>
     <button onclick="getAllBusinesses()">List All</button>
 </section>
 
-<!-- Search Businesses Section -->
+&lt;!&ndash; Search Businesses Section &ndash;&gt;
 <section>
     <h2>Search Businesses</h2>
     <label for="locationSearch">By Location:</label>
@@ -148,7 +397,7 @@
     <button onclick="getBusinessByQuery('category')">Search</button>
 </section>
 
-<!-- Get Business by ID Section -->
+&lt;!&ndash; Get Business by ID Section &ndash;&gt;
 <section>
     <h2>Get Business by ID</h2>
     <label for="businessId">Business ID:</label>
@@ -156,7 +405,7 @@
     <button onclick="getBusinessById()">Fetch</button>
 </section>
 
-<!-- Delete a Business Section -->
+&lt;!&ndash; Delete a Business Section &ndash;&gt;
 <section>
     <h2>Delete a Business</h2>
     <label for="deleteBusinessId">Business ID:</label>
@@ -164,7 +413,7 @@
     <button onclick="deleteBusiness()">Delete Business</button>
 </section>
 
-<!-- Output Section -->
+&lt;!&ndash; Output Section &ndash;&gt;
 <section>
     <h2>Output</h2>
     <pre id="output"></pre>
@@ -254,3 +503,4 @@
 </script>
 </body>
 </html>
+-->
