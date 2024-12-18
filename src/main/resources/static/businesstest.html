@@ -1,245 +1,256 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Business API Frontend</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="script.js"></script>
-    <script>
-        const apiBase = 'http://localhost:8080/api/business';
-
-        async function fetchData(endpoint, method = 'GET', body = null) {
-            try {
-                const response = await fetch(`${apiBase}${endpoint}`, {
-                    method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: body ? JSON.stringify(body) : null,
-                });
-                const data = await response.json();
-                console.log(data);
-                return data;
-            } catch (error) {
-                console.error('Error:', error);
-            }
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
         }
 
-        async function getBusinessesPaged() {
-            const page = document.getElementById('page').value;
-            const size = document.getElementById('size').value;
-            const data = await fetchData(`/paged?page=${page}&size=${size}`);
-            document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+        h1 {
+            text-align: center;
         }
 
-        async function getAllBusinesses() {
-            const data = await fetchData('/all');
-            document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+        section {
+            margin-bottom: 30px;
         }
 
-        async function addBusiness() {
-            const name = document.getElementById('name').value;
-            const location = document.getElementById('location').value;
-            const category = document.getElementById('category').value;
-            const latitude = document.getElementById('latitude').value;
-            const longitude = document.getElementById('longitude').value;
-            const description = document.getElementById('description').value;
-            const logoUrl = document.getElementById('logoUrl').value;
-            const imageUrl = document.getElementById('imageUrl').value;
-
-            const body = { name, location, category, latitude, longitude, description, logoUrl, imageUrl };
-            const data = await fetchData('/addBusiness', 'POST', body);
-            document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+        label {
+            display: block;
+            margin: 10px 0 5px;
         }
 
-        async function getBusinessByQuery(type) {
-    const value = document.getElementById(type + 'Search').value.trim();
-
-    if (!value) {
-        alert('Please enter a search value.');
-        return;
-    }
-
-    let url = '';
-
-    if (type === 'location') {
-        url = `/api/business/location?location=${encodeURIComponent(value)}`;
-    } else if (type === 'name') {
-        url = `/api/business/name?name=${encodeURIComponent(value)}`;
-    } else if (type === 'category') {
-        url = `/api/business/category?category=${encodeURIComponent(value)}`;
-    }
-
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-
-        // Ensure this function correctly updates the UI with fetched data
-        displayStores(data);
-
-        // For debugging purposes, output the raw data
-        document.getElementById('output').innerText = JSON.stringify(data, null, 2);
-    } catch (error) {
-        console.error('Error fetching business:', error);
-    }
-}
-
-        async function getBusinessById() {
-            const id = document.getElementById('businessId').value;
-            const data = await fetchData(`/${id}`);
-            document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+        input, textarea, select, button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
         }
 
-        async function deleteBusiness() {
-    const id = document.getElementById('deleteBusinessId').value.trim();
-
-    if (!id) {
-        alert('Please enter a business ID.');
-        return;
-    }
-
-    const url = `/api/business/${id}`;
-
-    try {
-        const response = await fetch(url, { method: 'DELETE' });
-        if (!response.ok) {
-            throw new Error('Failed to delete business');
+        textarea {
+            resize: vertical;
+            min-height: 100px;
         }
-        document.getElementById('output').innerText = `Business with ID ${id} deleted successfully.`;
-    } catch (error) {
-        console.error('Error deleting business:', error);
-        document.getElementById('output').innerText = `Error deleting business: ${error.message}`;
-    }
-}
-    document.addEventListener("DOMContentLoaded", function () {
-        // Initialize the map
-        const map = L.map('map').setView([40.7994, -124.1644], 13); // Default to Eureka
 
-        // Add OpenStreetMap tiles
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+        #map {
+            width: 75%;
+            height: 400px;
+            margin: 0 auto 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
 
-        let marker;
+        .button-container {
+            text-align: center;
+        }
 
-        // Click event to place a marker and get coordinates
-        map.on('click', function (e) {
-            const { lat, lng } = e.latlng;
+        button {
+            width: auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-            // Place or move the marker
-            if (marker) {
-                marker.setLatLng(e.latlng);
-            } else {
-                marker = L.marker(e.latlng).addTo(map);
-            }
+        button:hover {
+            background-color: #45a049;
+        }
 
-            // Update hidden fields
-            document.getElementById('latitude').value = lat;
-            document.getElementById('longitude').value = lng;
-
-            // Fetch and update the address
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
-                .then(response => response.json())
-                .then(data => {
-                    const address = data.display_name || 'Address not found';
-                    document.getElementById('location').value = address;
-                })
-                .catch(error => {
-                    console.error('Error fetching address:', error);
-                    document.getElementById('businessLocation').value = 'Unable to fetch address';
-                });
-        });
-    });
-
-    </script>
+        pre {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            overflow: auto;
+        }
+    </style>
 </head>
 <body>
-    <h1>Business API Frontend</h1>
+<h1>Business API Frontend</h1>
 
-    <section>
-        <h2>Get Paged Businesses</h2>
-        <label for="page">Page:</label>
-        <input type="number" id="page" value="0">
-        <label for="size">Size:</label>
-        <input type="number" id="size" value="10">
-        <button onclick="getBusinessesPaged()">Fetch</button>
-    </section>
+<!-- Add Business Section -->
+<section>
+    <h2>Add a Business</h2>
+    <label for="name">Name:</label>
+    <input type="text" id="name" placeholder="Enter the business name">
 
-    <section>
-        <h2>Get All Businesses</h2>
-        <button onclick="getAllBusinesses()">Fetch</button>
-    </section>
+    <h3>Select Business Location</h3>
+    <div id="map"></div>
 
-    <section>
-        <h2>Add a Business</h2>
-        <label for="name">Name:</label>
-        <input type="text" id="name">
-        <div>
-            <h3>Select Business Location</h3>
-            <div id="map" style="height: 400px; margin-bottom: 20px;"></div>
-        </div>
-        <input type="text" id="location">
-        <div>
-            <label for="category">Category:</label>
-            <select id="category" name="category" required>
-                <option value="" disabled selected>Select Category</option>
-                <option value="Retail">Retail</option>
-                <option value="Food and Beverage">Food and Beverage</option>
-                <option value="Health">Health</option>
-                <option value="Education">Education</option>
-                <option value="Lan Center">LAN Center</option>
-                <option value="Arcade">Arcade</option>
-                <option value="Lounge">Lounge</option>
-                <!-- Add more options as needed -->
-            </select>
-        </div>
-        <label for="latitude">Latitude:</label>
-        <input type="text" id="latitude">
-        <label for="longitude">Longitude:</label>
-        <input type="text" id="longitude">
-        <label for="description">Description:</label>
-        <input type="text" id="description">
-        <label for="logoUrl">Logo URL:</label>
-        <input type="text" id="logoUrl">
-        <label for="imageUrl">Image URL:</label>
-        <input type="text" id="imageUrl">
-        <button onclick="addBusiness()">Add</button>
-    </section>
+    <input type="hidden" id="latitude">
+    <input type="hidden" id="longitude">
 
-    <section>
-        <h2>Search Businesses</h2>
-        <label for="location">By Location:</label>
-        <input type="text" id="locationSearch">
-        <button onclick="getBusinessByQuery('location')">Search</button><br>
-        
-        <label for="name">By Name:</label>
-        <input type="text" id="nameSearch">
-        <button onclick="getBusinessByQuery('name')">Search</button><br>
+    <label for="location">Location Address:</label>
+    <input type="text" id="location" placeholder="Location will be auto-filled upon map click">
 
-        <label for="category">By Category:</label>
-        <input type="text" id="categorySearch">
-        <button onclick="getBusinessByQuery('category')">Search</button>
-    </section>
+    <label for="category">Category:</label>
+    <select id="category" name="category" required>
+        <option value="" disabled selected>Select Category</option>
+        <option value="Arcade">Arcade</option>
+        <option value="Board Game Store">Board Game Store</option>
+        <option value="Card Shop">Card Shop</option>
+        <option value="Educational Game Store">Educational Game Store</option>
+        <option value="Esports Center">Esports Center</option>
+        <option value="Food & Drink">Food & Drink</option>
+        <option value="Game Workshop">Game Workshop</option>
+        <option value="Gaming Café">Gaming Café</option>
+        <option value="LAN Center">LAN Center</option>
+        <option value="Lounge">Lounge</option>
+        <option value="Miniatures and War Games Store">Miniatures and War Games Store</option>
+        <option value="Puzzle Store">Puzzle Store</option>
+        <option value="Retro Gaming Store">Retro Gaming Store</option>
+        <option value="RPG Store">Role-Playing Game (RPG) Store</option>
+        <option value="Simulation Game Store">Simulation Game Store</option>
+        <option value="Themed Game Store">Themed Game Store</option>
+        <option value="Vintage Arcade">Vintage Arcade</option>
+        <option value="Video Game Store">Video Game Store</option>
+    </select>
 
-    <section>
-        <h2>Get Business by ID</h2>
-        <label for="businessId">ID:</label>
-        <input type="number" id="businessId">
-        <button onclick="getBusinessById()">Fetch</button>
-    </section>
+    <label for="description">Description:</label>
+    <textarea id="description" placeholder="Enter a detailed description of the business"></textarea>
 
-    <section>
-        <h2>Delete a Business</h2>
-        <label for="deleteBusinessId">Business ID:</label>
-        <input type="number" id="deleteBusinessId" placeholder="Enter business ID">
-        <button onclick="deleteBusiness()">Delete Business</button>
-    </section>
+    <label for="logoUrl">Logo URL:</label>
+    <input type="text" id="logoUrl" placeholder="Enter the URL for the business logo">
 
-    <section>
-        <h2>Output</h2>
-        <pre id="output" style="border: 1px solid #000; padding: 10px; white-space: pre-wrap; background: #f0f0f0;"></pre>
-    </section>
+    <label for="imageUrl">Image URL:</label>
+    <input type="text" id="imageUrl" placeholder="Enter the URL for the business image">
+
+    <div class="button-container">
+        <button onclick="addBusiness()">Add Business</button>
+    </div>
+</section>
+
+<!-- List All Businesses Section -->
+<section>
+    <h2>List All Businesses</h2>
+    <button onclick="getAllBusinesses()">List All</button>
+</section>
+
+<!-- Search Businesses Section -->
+<section>
+    <h2>Search Businesses</h2>
+    <label for="locationSearch">By Location:</label>
+    <input type="text" id="locationSearch" placeholder="Enter location">
+    <button onclick="getBusinessByQuery('location')">Search</button><br>
+
+    <label for="nameSearch">By Name:</label>
+    <input type="text" id="nameSearch" placeholder="Enter business name">
+    <button onclick="getBusinessByQuery('name')">Search</button><br>
+
+    <label for="categorySearch">By Category:</label>
+    <input type="text" id="categorySearch" placeholder="Enter category">
+    <button onclick="getBusinessByQuery('category')">Search</button>
+</section>
+
+<!-- Get Business by ID Section -->
+<section>
+    <h2>Get Business by ID</h2>
+    <label for="businessId">Business ID:</label>
+    <input type="number" id="businessId" placeholder="Enter business ID">
+    <button onclick="getBusinessById()">Fetch</button>
+</section>
+
+<!-- Delete a Business Section -->
+<section>
+    <h2>Delete a Business</h2>
+    <label for="deleteBusinessId">Business ID:</label>
+    <input type="number" id="deleteBusinessId" placeholder="Enter business ID">
+    <button onclick="deleteBusiness()">Delete Business</button>
+</section>
+
+<!-- Output Section -->
+<section>
+    <h2>Output</h2>
+    <pre id="output"></pre>
+</section>
+
+<script>
+    const apiBase = 'http://localhost:8080/api/business';
+
+    async function fetchData(endpoint, method = 'GET', body = null) {
+        try {
+            const response = await fetch(`${apiBase}${endpoint}`, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: body ? JSON.stringify(body) : null,
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    async function addBusiness() {
+        const name = document.getElementById('name').value.trim();
+        const location = document.getElementById('location').value.trim();
+        const category = document.getElementById('category').value;
+        const latitude = document.getElementById('latitude').value;
+        const longitude = document.getElementById('longitude').value;
+        const description = document.getElementById('description').value.trim();
+        const logoUrl = document.getElementById('logoUrl').value.trim();
+        const imageUrl = document.getElementById('imageUrl').value.trim();
+
+        const business = { name, location, category, latitude, longitude, description, logoUrl, imageUrl };
+
+        const data = await fetchData('/addBusiness', 'POST', business);
+        document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+    }
+
+    async function getAllBusinesses() {
+        const data = await fetchData('/all');
+        document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+    }
+
+    async function getBusinessByQuery(type) {
+        const value = document.getElementById(type + 'Search').value.trim();
+        if (!value) {
+            alert('Please enter a search value.');
+            return;
+        }
+        const data = await fetchData(`/${type}?${type}=${encodeURIComponent(value)}`);
+        document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+    }
+
+    async function getBusinessById() {
+        const id = document.getElementById('businessId').value;
+        const data = await fetchData(`/${id}`);
+        document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+    }
+
+    async function deleteBusiness() {
+        const id = document.getElementById('deleteBusinessId').value.trim();
+        if (!id) {
+            alert('Please enter a business ID.');
+            return;
+        }
+        await fetchData(`/${id}`, 'DELETE');
+        document.getElementById('output').innerText = `Business with ID ${id} deleted successfully.`;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const map = L.map('map').setView([40.7994, -124.1644], 13); // Eureka, CA
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+        let marker;
+        map.on('click', function (e) {
+            const { lat, lng } = e.latlng;
+            if (marker) marker.setLatLng(e.latlng);
+            else marker = L.marker(e.latlng).addTo(map);
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                .then(response => response.json())
+                .then(data => document.getElementById('location').value = data.display_name || 'Address not found')
+                .catch(error => console.error('Error fetching address:', error));
+        });
+    });
+</script>
 </body>
 </html>

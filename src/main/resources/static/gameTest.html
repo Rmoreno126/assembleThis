@@ -4,6 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game API Frontend</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        section {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input, button, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        pre {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            overflow: auto;
+        }
+    </style>
     <script>
         const apiBase = 'http://localhost:8080/api/games';
 
@@ -11,9 +58,7 @@
             try {
                 const response = await fetch(`${apiBase}${endpoint}`, {
                     method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: body ? JSON.stringify(body) : null,
                 });
                 return await response.json();
@@ -23,40 +68,37 @@
         }
 
         async function fetchGameTypes() {
-    try {
-        const data = await fetchData('/types');
-        const datalist = document.getElementById('gameTypeOptions');
-        datalist.innerHTML = ''; // Clear previous options
+            try {
+                const data = await fetchData('/types');
+                const datalist = document.getElementById('gameTypeOptions');
+                datalist.innerHTML = ''; // Clear previous options
+                data.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type;
+                    datalist.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching game types:', error);
+            }
+        }
 
-        data.forEach(type => {
-            const option = document.createElement('option');
-            option.value = type; // Use the value attribute for the datalist
-            datalist.appendChild(option);
-        });
-    } catch (error) {
-        console.error('Error fetching game types:', error);
-    }
-}
+        async function saveOrUpdateGame() {
+            const id = document.getElementById('gameId').value;
+            const name = document.getElementById('gameName').value;
+            const type = document.getElementById('gameTypeDropdownInput').value.trim();
+            const description = document.getElementById('gameDescription').value;
+            const imageUrl = document.getElementById('gameImageUrl').value;
+            const logoUrl = document.getElementById('gameLogoUrl').value;
 
-async function saveOrUpdateGame() {
-    const id = document.getElementById('gameId').value;
-    const name = document.getElementById('gameName').value;
-    const type = document.getElementById('gameTypeDropdownInput').value.trim(); // Supports dropdown selection or direct input
-    const description = document.getElementById('gameDescription').value;
-    const imageUrl = document.getElementById('gameImageUrl').value;
-    const logoUrl = document.getElementById('gameLogoUrl').value;
+            if (!type) {
+                alert('Please select or enter a game type.');
+                return;
+            }
 
-    if (!type) {
-        alert('Please select or enter a game type.');
-        return;
-    }
-
-    const game = { id, name, type, description, imageUrl, logoUrl };
-    const data = await fetchData('', 'POST', game);
-    document.getElementById('output').innerText = JSON.stringify(data, null, 2);
-}
-
-document.addEventListener('DOMContentLoaded', fetchGameTypes);
+            const game = { id, name, type, description, imageUrl, logoUrl };
+            const data = await fetchData('', 'POST', game);
+            document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+        }
 
         async function getAllGames() {
             const data = await fetchData('');
@@ -76,30 +118,20 @@ document.addEventListener('DOMContentLoaded', fetchGameTypes);
         }
 
         async function getGameByQuery(type) {
-            const value = document.getElementById(type + 'Search').value.trim();
-
+            const value = document.getElementById(`${type}Search`).value.trim();
             if (!value) {
                 alert('Please enter a search value.');
                 return;
             }
 
             let url = '';
-
-            if (type === 'name') {
-                url = `/api/games/name?name=${encodeURIComponent(value)}`;
-            } else if (type === 'type') {
-                url = `/api/games/type?type=${encodeURIComponent(value)}`;
-            }
+            if (type === 'name') url = `/name?name=${encodeURIComponent(value)}`;
+            if (type === 'type') url = `/type?type=${encodeURIComponent(value)}`;
 
             try {
-                const response = await fetch(url);
-                const data = await response.json();
-
-                // Ensure this function correctly updates the UI with fetched data
-                displayResults(data);
-
-                // For debugging purposes, output the raw data
+                const data = await fetchData(url);
                 document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+                displayResults(data);
             } catch (error) {
                 console.error('Error fetching games:', error);
             }
@@ -113,7 +145,6 @@ document.addEventListener('DOMContentLoaded', fetchGameTypes);
             } else {
                 games.forEach(game => {
                     const gameDiv = document.createElement('div');
-                    gameDiv.classList.add('game');
                     gameDiv.innerHTML = `
                         <h3>${game.name}</h3>
                         <p>Type: ${game.type}</p>
@@ -123,6 +154,8 @@ document.addEventListener('DOMContentLoaded', fetchGameTypes);
                 });
             }
         }
+
+        document.addEventListener('DOMContentLoaded', fetchGameTypes);
     </script>
 </head>
 <body>
@@ -131,54 +164,62 @@ document.addEventListener('DOMContentLoaded', fetchGameTypes);
 <section>
     <h2>Create or Update a Game</h2>
     <label for="gameId">Game ID:</label>
-    <input type="text" id="gameId" placeholder="Leave empty for new game"><br>
+    <input type="text" id="gameId" placeholder="Leave empty for new game">
+
     <label for="gameName">Name:</label>
-    <input type="text" id="gameName" placeholder="Game name"><br>
+    <input type="text" id="gameName" placeholder="Enter game name">
 
     <label for="gameTypeDropdownInput">Game Type:</label>
     <input list="gameTypeOptions" id="gameTypeDropdownInput" placeholder="Select or enter game type">
-    <datalist id="gameTypeOptions">
-        <!-- Options will be dynamically populated here -->
-    </datalist>
-    <br>
+    <datalist id="gameTypeOptions"></datalist>
 
     <label for="gameDescription">Description:</label>
-    <input type="text" id="gameDescription" placeholder="Game description"><br>
+    <textarea id="gameDescription" placeholder="Enter game description"></textarea>
+
     <label for="gameImageUrl">Image URL:</label>
-    <input type="text" id="gameImageUrl" placeholder="Game image URL"><br>
+    <input type="text" id="gameImageUrl" placeholder="Enter game image URL">
+
     <label for="gameLogoUrl">Logo URL:</label>
-    <input type="text" id="gameLogoUrl" placeholder="Game logo URL"><br>
-    <button onclick="saveOrUpdateGame()">Save or Update Game</button>
+    <input type="text" id="gameLogoUrl" placeholder="Enter game logo URL">
+
+    <div class="button-container">
+        <button onclick="saveOrUpdateGame()">Save or Update Game</button>
+    </div>
 </section>
 
 <section>
     <h2>Get All Games</h2>
-    <button onclick="getAllGames()">Get All Games</button>
+    <div class="button-container">
+        <button onclick="getAllGames()">Fetch All Games</button>
+    </div>
 </section>
 
 <section>
     <h2>Get Game by ID</h2>
     <label for="searchGameId">Game ID:</label>
-    <input type="text" id="searchGameId" placeholder="Enter game ID"><br>
-    <button onclick="getGameById()">Get Game</button>
+    <input type="text" id="searchGameId" placeholder="Enter game ID">
+    <div class="button-container">
+        <button onclick="getGameById()">Fetch Game</button>
+    </div>
 </section>
 
 <section>
     <h2>Delete Game by ID</h2>
     <label for="deleteGameId">Game ID:</label>
-    <input type="text" id="deleteGameId" placeholder="Enter game ID"><br>
-    <button onclick="deleteGame()">Delete Game</button>
+    <input type="text" id="deleteGameId" placeholder="Enter game ID">
+    <div class="button-container">
+        <button onclick="deleteGame()">Delete Game</button>
+    </div>
 </section>
 
 <section>
     <h2>Search Games</h2>
+    <label for="nameSearch">By Name:</label>
+    <input type="text" id="nameSearch" placeholder="Enter game name">
+    <button onclick="getGameByQuery('name')">Search</button>
 
-    <label for="name">By Name:</label>
-    <input type="text" id="nameSearch">
-    <button onclick="getGameByQuery('name')">Search</button><br>
-
-    <label for="type">By Type:</label>
-    <input type="text" id="typeSearch">
+    <label for="typeSearch">By Type:</label>
+    <input type="text" id="typeSearch" placeholder="Enter game type">
     <button onclick="getGameByQuery('type')">Search</button>
 </section>
 
