@@ -81,4 +81,8 @@ public class GameService {
             throw new RuntimeException("No games found with type: " + type);
         } return games;
     }
+
+    public  List<String> getDistinctGameTypes() {
+        return gameRepository.findDistinctTypes();
+    }
 }

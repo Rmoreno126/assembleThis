@@ -24,4 +24,8 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     // Find all games by type
     @Query("SELECT g FROM Game g WHERE LOWER(g.type) LIKE LOWER(CONCAT('%', :type, '%'))")
     List<Game> findAllByType(@Param("type") String type);
+
+    // Find distinct game types
+    @Query("SELECT DISTINCT g.type FROM Game g")
+    List<String> findDistinctTypes();
 }

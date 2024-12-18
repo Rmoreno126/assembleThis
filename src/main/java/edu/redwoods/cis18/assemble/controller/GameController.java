@@ -63,4 +63,10 @@ public class GameController {
     public List<Game> getGamesByType(@RequestParam String type) {
         return gameService.findGamesByType(type);
     }
+
+    // API /types endpoint
+    @GetMapping("/types")
+    public List<String> getDistinctGameTypes() {
+        return gameService.getDistinctGameTypes();
+    }
 }

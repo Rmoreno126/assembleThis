@@ -22,18 +22,41 @@
             }
         }
 
-        async function saveOrUpdateGame() {
-            const id = document.getElementById('gameId').value;
-            const name = document.getElementById('gameName').value;
-            const type = document.getElementById('gameType').value;
-            const description = document.getElementById('gameDescription').value;
-            const imageUrl = document.getElementById('gameImageUrl').value;
-            const logoUrl = document.getElementById('gameLogoUrl').value;
+        async function fetchGameTypes() {
+    try {
+        const data = await fetchData('/types');
+        const datalist = document.getElementById('gameTypeOptions');
+        datalist.innerHTML = ''; // Clear previous options
 
-            const game = { id, name, type, description, imageUrl, logoUrl };
-            const data = await fetchData('', 'POST', game);
-            document.getElementById('output').innerText = JSON.stringify(data, null, 2);
-        }
+        data.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type; // Use the value attribute for the datalist
+            datalist.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error fetching game types:', error);
+    }
+}
+
+async function saveOrUpdateGame() {
+    const id = document.getElementById('gameId').value;
+    const name = document.getElementById('gameName').value;
+    const type = document.getElementById('gameTypeDropdownInput').value.trim(); // Supports dropdown selection or direct input
+    const description = document.getElementById('gameDescription').value;
+    const imageUrl = document.getElementById('gameImageUrl').value;
+    const logoUrl = document.getElementById('gameLogoUrl').value;
+
+    if (!type) {
+        alert('Please select or enter a game type.');
+        return;
+    }
+
+    const game = { id, name, type, description, imageUrl, logoUrl };
+    const data = await fetchData('', 'POST', game);
+    document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+}
+
+document.addEventListener('DOMContentLoaded', fetchGameTypes);
 
         async function getAllGames() {
             const data = await fetchData('');
@@ -111,13 +134,19 @@
     <input type="text" id="gameId" placeholder="Leave empty for new game"><br>
     <label for="gameName">Name:</label>
     <input type="text" id="gameName" placeholder="Game name"><br>
-    <label for="gameType">Game Type:</label>
-    <input type="text" id="gameType" placeholder="Game type"><br>
+
+    <label for="gameTypeDropdownInput">Game Type:</label>
+    <input list="gameTypeOptions" id="gameTypeDropdownInput" placeholder="Select or enter game type">
+    <datalist id="gameTypeOptions">
+        <!-- Options will be dynamically populated here -->
+    </datalist>
+    <br>
+
     <label for="gameDescription">Description:</label>
     <input type="text" id="gameDescription" placeholder="Game description"><br>
-    <label for="gameImageUrl">ImageURL:</label>
+    <label for="gameImageUrl">Image URL:</label>
     <input type="text" id="gameImageUrl" placeholder="Game image URL"><br>
-    <label for="gameLogoUrl">LogoURL:</label>
+    <label for="gameLogoUrl">Logo URL:</label>
     <input type="text" id="gameLogoUrl" placeholder="Game logo URL"><br>
     <button onclick="saveOrUpdateGame()">Save or Update Game</button>
 </section>
