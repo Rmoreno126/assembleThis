@@ -33,7 +33,7 @@
         button {
             width: auto;
             padding: 10px 20px;
-            background-color: #4CAF50;
+            background-color: #007BFF;
             color: white;
             border: none;
             border-radius: 5px;
@@ -41,192 +41,252 @@
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: #0056b3;
         }
 
-        pre {
-            background: #f9f9f9;
-            border: 1px solid #ddd;
+        .response {
+            margin-top: 20px;
             padding: 10px;
-            overflow: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            background-color: #f9f9f9;
         }
     </style>
-    <script>
-        const apiBase = 'http://localhost:8080/api/games';
-
-        async function fetchData(endpoint, method = 'GET', body = null) {
-            try {
-                const response = await fetch(`${apiBase}${endpoint}`, {
-                    method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: body ? JSON.stringify(body) : null,
-                });
-                return await response.json();
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        async function fetchGameTypes() {
-            try {
-                const data = await fetchData('/types');
-                const datalist = document.getElementById('gameTypeOptions');
-                datalist.innerHTML = ''; // Clear previous options
-                data.forEach(type => {
-                    const option = document.createElement('option');
-                    option.value = type;
-                    datalist.appendChild(option);
-                });
-            } catch (error) {
-                console.error('Error fetching game types:', error);
-            }
-        }
-
-        async function saveOrUpdateGame() {
-            const id = document.getElementById('gameId').value;
-            const name = document.getElementById('gameName').value;
-            const type = document.getElementById('gameTypeDropdownInput').value.trim();
-            const description = document.getElementById('gameDescription').value;
-            const imageUrl = document.getElementById('gameImageUrl').value;
-            const logoUrl = document.getElementById('gameLogoUrl').value;
-
-            if (!type) {
-                alert('Please select or enter a game type.');
-                return;
-            }
-
-            const game = { id, name, type, description, imageUrl, logoUrl };
-            const data = await fetchData('', 'POST', game);
-            document.getElementById('output').innerText = JSON.stringify(data, null, 2);
-        }
-
-        async function getAllGames() {
-            const data = await fetchData('');
-            document.getElementById('output').innerText = JSON.stringify(data, null, 2);
-        }
-
-        async function getGameById() {
-            const id = document.getElementById('searchGameId').value;
-            const data = await fetchData(`/${id}`);
-            document.getElementById('output').innerText = JSON.stringify(data, null, 2);
-        }
-
-        async function deleteGame() {
-            const id = document.getElementById('deleteGameId').value;
-            await fetchData(`/${id}`, 'DELETE');
-            document.getElementById('output').innerText = 'Game deleted successfully.';
-        }
-
-        async function getGameByQuery(type) {
-            const value = document.getElementById(`${type}Search`).value.trim();
-            if (!value) {
-                alert('Please enter a search value.');
-                return;
-            }
-
-            let url = '';
-            if (type === 'name') url = `/name?name=${encodeURIComponent(value)}`;
-            if (type === 'type') url = `/type?type=${encodeURIComponent(value)}`;
-
-            try {
-                const data = await fetchData(url);
-                document.getElementById('output').innerText = JSON.stringify(data, null, 2);
-                displayResults(data);
-            } catch (error) {
-                console.error('Error fetching games:', error);
-            }
-        }
-
-        function displayResults(games) {
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = ''; // Clear previous results
-            if (games.length === 0) {
-                resultsDiv.innerHTML = '<p>No games found.</p>';
-            } else {
-                games.forEach(game => {
-                    const gameDiv = document.createElement('div');
-                    gameDiv.innerHTML = `
-                        <h3>${game.name}</h3>
-                        <p>Type: ${game.type}</p>
-                        <p>Description: ${game.description}</p>
-                    `;
-                    resultsDiv.appendChild(gameDiv);
-                });
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', fetchGameTypes);
-    </script>
 </head>
 <body>
 <h1>Game API Frontend</h1>
 
 <section>
     <h2>Create or Update a Game</h2>
-    <label for="gameId">Game ID:</label>
-    <input type="text" id="gameId" placeholder="Leave empty for new game">
+    <form id="gameForm">
+        <label for="gameId">Game ID (optional):</label>
+        <input type="number" id="gameId" placeholder="Leave empty for new game">
 
-    <label for="gameName">Name:</label>
-    <input type="text" id="gameName" placeholder="Enter game name">
+        <label for="gameName">Game Name:</label>
+        <input type="text" id="gameName">
 
-    <label for="gameTypeDropdownInput">Game Type:</label>
-    <input list="gameTypeOptions" id="gameTypeDropdownInput" placeholder="Select or enter game type">
-    <datalist id="gameTypeOptions"></datalist>
+        <label for="gameType">Game Type:</label>
+        <input list="gameTypeOptions" id="gameType" placeholder="Select or enter game type">
+        <datalist id="gameTypeOptions"></datalist>
 
-    <label for="gameDescription">Description:</label>
-    <textarea id="gameDescription" placeholder="Enter game description"></textarea>
+        <label for="gameDescription">Description:</label>
+        <textarea id="gameDescription"></textarea>
 
-    <label for="gameImageUrl">Image URL:</label>
-    <input type="text" id="gameImageUrl" placeholder="Enter game image URL">
+        <label for="gameImageUrl">Image URL:</label>
+        <input type="url" id="gameImageUrl">
 
-    <label for="gameLogoUrl">Logo URL:</label>
-    <input type="text" id="gameLogoUrl" placeholder="Enter game logo URL">
+        <label for="gameLogoUrl">Logo URL:</label>
+        <input type="url" id="gameLogoUrl">
 
-    <div class="button-container">
-        <button onclick="saveOrUpdateGame()">Save or Update Game</button>
-    </div>
+        <button type="submit">Save or Update Game</button>
+    </form>
 </section>
 
 <section>
     <h2>Get All Games</h2>
-    <div class="button-container">
-        <button onclick="getAllGames()">Fetch All Games</button>
-    </div>
+    <button id="fetchAllGames">Fetch All Games</button>
+    <div id="gamesList" class="response"></div>
 </section>
 
 <section>
     <h2>Get Game by ID</h2>
-    <label for="searchGameId">Game ID:</label>
-    <input type="text" id="searchGameId" placeholder="Enter game ID">
-    <div class="button-container">
-        <button onclick="getGameById()">Fetch Game</button>
-    </div>
+    <form id="fetchGameForm">
+        <label for="fetchGameId">Game ID:</label>
+        <input type="number" id="fetchGameId" required>
+        <button type="submit">Fetch Game</button>
+    </form>
+    <div id="gameDetails" class="response"></div>
 </section>
 
 <section>
     <h2>Delete Game by ID</h2>
-    <label for="deleteGameId">Game ID:</label>
-    <input type="text" id="deleteGameId" placeholder="Enter game ID">
-    <div class="button-container">
-        <button onclick="deleteGame()">Delete Game</button>
-    </div>
+    <form id="deleteGameForm">
+        <label for="deleteGameId">Game ID:</label>
+        <input type="number" id="deleteGameId" required>
+        <button type="submit">Delete Game</button>
+    </form>
 </section>
 
 <section>
     <h2>Search Games</h2>
-    <label for="nameSearch">By Name:</label>
-    <input type="text" id="nameSearch" placeholder="Enter game name">
-    <button onclick="getGameByQuery('name')">Search</button>
+    <form id="searchGameForm">
+        <label for="searchGameByName">By Name:</label>
+        <input type="text" id="searchGameByName" placeholder="Enter game name">
+        <button type="button" id="searchNameButton">Search by Name</button>
 
-    <label for="typeSearch">By Type:</label>
-    <input type="text" id="typeSearch" placeholder="Enter game type">
-    <button onclick="getGameByQuery('type')">Search</button>
+        <label for="searchGameByType">By Type:</label>
+        <input type="text" id="searchGameByType" placeholder="Enter game type">
+        <button type="button" id="searchTypeButton">Search by Type</button>
+    </form>
+    <div id="searchResults" class="response"></div>
 </section>
 
-<section>
-    <h2>Output</h2>
-    <pre id="output"></pre>
-    <div id="results"></div>
-</section>
+<script>
+    const apiUrl = '/api/games';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        await populateGameTypes();
+    });
+
+    async function fetchData(endpoint, method = 'GET', body = null) {
+    try {
+        const response = await fetch(`${apiUrl}${endpoint}`, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: body ? JSON.stringify(body) : null,
+        });
+
+        if (!response.ok) {
+            let errorMessage = `API Error: ${response.status}`;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorMessage;
+            } catch (jsonError) {
+                console.warn('Response did not contain valid JSON:', jsonError);
+            }
+            throw new Error(errorMessage);
+        }
+
+        // Handle cases where the response body might be empty
+        const responseBody = await response.text();
+        return responseBody ? JSON.parse(responseBody) : {};
+    } catch (error) {
+        console.error('Fetch error:', error.message);
+        return { error: error.message }; // Return the error to the caller
+    }
+}
+
+    async function populateGameTypes() {
+        try {
+            const data = await fetchData('/types');
+            const datalist = document.getElementById('gameTypeOptions');
+            datalist.innerHTML = ''; // Clear previous options
+            data.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                datalist.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error fetching game types:', error);
+        }
+    }
+
+        // Function to handle form submission for saving or updating a game
+    document.getElementById('gameForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const gameForm = e.target;
+        const feedbackElement = document.createElement('div');
+        feedbackElement.style.marginTop = '10px';
+
+        const id = document.getElementById('gameId').value;
+        const name = document.getElementById('gameName').value.trim();
+        const type = document.getElementById('gameType').value.trim();
+        const description = document.getElementById('gameDescription').value.trim();
+        const imageUrl = document.getElementById('gameImageUrl').value.trim();
+        const logoUrl = document.getElementById('gameLogoUrl').value.trim();
+
+        // Validate required fields if this is a new game
+        if (!id && (!name || !type || !description)) {
+            feedbackElement.textContent = 'Please fill in the Name, Type, and Description for new games.';
+            feedbackElement.style.color = 'red';
+            gameForm.appendChild(feedbackElement);
+            setTimeout(() => feedbackElement.remove(), 5000);
+            return;
+        }
+
+        // Create a payload dynamically, including only non-empty fields
+        const game = {};
+        if (id) game.id = id;
+        if (name) game.name = name;
+        if (type) game.type = type;
+        if (description) game.description = description;
+        if (imageUrl) game.imageUrl = imageUrl;
+        if (logoUrl) game.logoUrl = logoUrl;
+
+        try {
+            const response = await fetchData('', 'POST', game);
+
+            if (response.error) {
+                feedbackElement.textContent = `Error: ${response.error}`;
+                feedbackElement.style.color = 'red';
+            } else {
+                feedbackElement.textContent = `Game ${id ? 'updated' : 'created'} successfully!`;
+                feedbackElement.style.color = 'green';
+                if (!id) gameForm.reset(); // Clear the form for new games only
+            }
+        } catch (error) {
+            feedbackElement.textContent = `Unexpected error: ${error.message}`;
+            feedbackElement.style.color = 'red';
+        }
+
+        // Append the feedback element after the form
+        gameForm.appendChild(feedbackElement);
+        setTimeout(() => feedbackElement.remove(), 5000);
+    });
+
+    document.getElementById('fetchAllGames').addEventListener('click', async () => {
+    const gamesListElement = document.getElementById('gamesList');
+    try {
+        const games = await fetchData('/all');
+        if (games.error) {
+            gamesListElement.textContent = `Error: ${games.error}`;
+            gamesListElement.style.color = 'red';
+        } else {
+            gamesListElement.textContent = JSON.stringify(games, null, 2);
+            gamesListElement.style.color = 'black'; // Reset color
+        }
+    } catch (error) {
+        gamesListElement.textContent = `Unexpected error: ${error.message}`;
+        gamesListElement.style.color = 'red';
+    }
+});
+
+
+    document.getElementById('fetchGameForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const gameDetailsElement = document.getElementById('gameDetails');
+    try {
+        const id = document.getElementById('fetchGameId').value;
+        const game = await fetchData(`/${id}`);
+
+        if (game.error) {
+            if (game.error.includes('404')) {
+                gameDetailsElement.textContent = `Game with ID ${id} not found.`;
+            } else {
+                gameDetailsElement.textContent = `Error: ${game.error}`;
+            }
+            gameDetailsElement.style.color = 'red';
+        } else {
+            gameDetailsElement.textContent = JSON.stringify(game, null, 2);
+            gameDetailsElement.style.color = 'black'; // Reset color
+        }
+    } catch (error) {
+        gameDetailsElement.textContent = `Unexpected error: ${error.message}`;
+        gameDetailsElement.style.color = 'red';
+    }
+});
+
+
+
+    document.getElementById('deleteGameForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('deleteGameId').value;
+        await fetchData(`/${id}`, 'DELETE');
+        alert('Game deleted successfully.');
+    });
+
+    document.getElementById('searchNameButton').addEventListener('click', async () => {
+        const name = document.getElementById('searchGameByName').value;
+        const games = await fetchData(`/name?name=${encodeURIComponent(name)}`);
+        document.getElementById('searchResults').textContent = JSON.stringify(games, null, 2);
+    });
+
+    document.getElementById('searchTypeButton').addEventListener('click', async () => {
+        const type = document.getElementById('searchGameByType').value;
+        const games = await fetchData(`/type?type=${encodeURIComponent(type)}`);
+        document.getElementById('searchResults').textContent = JSON.stringify(games, null, 2);
+    });
+</script>
 </body>
 </html>

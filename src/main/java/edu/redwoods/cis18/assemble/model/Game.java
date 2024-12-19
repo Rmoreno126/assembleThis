@@ -22,10 +22,10 @@ public class Game {
     @Size(max = 50, message = "Game type cannot exceed 50 characters")
     private String type;
 
-    @Column(nullable = true)
+    @Column(nullable = true, length = 1000)
     private String imageUrl;
 
-    @Column(nullable = true)
+    @Column(nullable = true, length = 1000)
     private String logoUrl;
 
     @Column(length = 1000) // Set a reasonable length for the description

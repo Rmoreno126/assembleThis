@@ -13,11 +13,11 @@ import java.util.Optional;
 @Repository
 public interface GameRepository extends JpaRepository<Game, Long> {
 
-    // Find game by partOfName
+    // Find game by part of the name
     @Query("SELECT g FROM Game g WHERE LOWER(g.name) LIKE LOWER(CONCAT('%', :name, '%'))")
     List<Game> findAllByName(@Param("name") String name);
 
-    // Find a game by exactName (case-insensitive search)
+    // Find a game by exact name (case-insensitive search)
     @Query("SELECT g FROM Game g WHERE LOWER(g.name) = LOWER(:name)")
     Optional<Game> findByName(@Param("name") String name);
 

@@ -1,8 +1,6 @@
 package edu.redwoods.cis18.assemble.service;
 
-import edu.redwoods.cis18.assemble.model.Business;
 import edu.redwoods.cis18.assemble.model.Game;
-import edu.redwoods.cis18.assemble.repository.BusinessRepository;
 import edu.redwoods.cis18.assemble.repository.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to Assemble!</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,6 +13,7 @@
 
         h1 {
             text-align: center;
+            color: #333;
         }
 
         nav {
@@ -21,8 +24,13 @@
         nav a {
             margin: 0 15px;
             text-decoration: none;
-            color: #4CAF50;
+            color: #007BFF;
             font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #0056b3;
         }
 
         section {
@@ -32,7 +40,8 @@
         .item-list {
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-between;
+            gap: 15px;
+            justify-content: center;
         }
 
         .item {
@@ -40,9 +49,15 @@
             background: #f9f9f9;
             border: 1px solid #ddd;
             border-radius: 5px;
-            margin-bottom: 20px;
             padding: 15px;
             box-sizing: border-box;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .item img {
@@ -53,10 +68,12 @@
 
         .item h3 {
             margin-top: 10px;
+            color: #333;
         }
 
         .item p {
             margin: 5px 0;
+            color: #555;
         }
 
         @media (max-width: 768px) {
@@ -74,7 +91,6 @@
 </head>
 <body>
 <h1>Welcome to Assemble!</h1>
-<link rel="icon" type="image/x-icon" href="/images/favicon.ico">
 
 <nav>
     <a href="businesstest.html">Business Test</a>
@@ -98,93 +114,52 @@
 </section>
 
 <script>
-    const businessApiBase = 'http://localhost:8080/api/business';
-    const eventApiBase = 'http://localhost:8080/api/events';
-    const gameApiBase = 'http://localhost:8080/api/games';
+    const serverAddress = 'http://localhost:8080';
+    const businessApiBase = `${serverAddress}/api/business`;
+    const eventApiBase = `${serverAddress}/api/events`;
+    const gameApiBase = `${serverAddress}/api/games`;
 
-    // Fetch first 9 businesses
-    async function fetchBusinesses() {
-        try {
-            const response = await fetch(`${businessApiBase}/all?page=0&size=9`);
-            const data = await response.json();
-            displayItems(data.content || data, 'businessList', 'business');
-        } catch (error) {
-            console.error('Error fetching businesses:', error);
-        }
-    }
 
-    // Fetch first 9 events
-    async function fetchEvents() {
-        try {
-            const response = await fetch(`${eventApiBase}?page=0&size=9`);
-            const data = await response.json();
-            displayItems(data.content || data, 'eventList', 'event');
-        } catch (error) {
-            console.error('Error fetching events:', error);
-        }
-    }
-
-    // Fetch first 9 games
-    async function fetchGames() {
-        try {
-            const response = await fetch(`${gameApiBase}?page=0&size=9`);
-            const data = await response.json();
-            displayItems(data.content || data, 'gameList', 'game');
-        } catch (error) {
-            console.error('Error fetching games:', error);
-        }
-    }
-
-    // Function to display items
-    function displayItems(items, elementId, type) {
-        const container = document.getElementById(elementId);
-        container.innerHTML = ''; // Clear previous content
-
-        if (!items || items.length === 0) {
-            container.innerHTML = '<p>No items found.</p>';
-            return;
+        // Fetch data from API
+        async function fetchData(url, listId, type) {
+            const container = document.getElementById(listId);
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Failed to fetch ${type}.`);
+                const data = await response.json();
+                displayItems(data.content || data, container, type);
+            } catch (error) {
+                container.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
         }
 
-        items.slice(0, 9).forEach(item => {
-            const itemDiv = document.createElement('div');
-            itemDiv.classList.add('item');
-
-            let content = '';
-
-            if (type === 'business') {
-                content = `
-                    <img src="${item.logoUrl || 'placeholder-business.jpg'}" alt="${item.name}">
-                    <h3>${item.name}</h3>
-                    <p><strong>Category:</strong> ${item.category}</p>
-                    <p>${item.description}</p>
-                `;
-            } else if (type === 'event') {
-                content = `
-                    <img src="${item.imageUrl || 'placeholder-event.jpg'}" alt="${item.name}">
-                    <h3>${item.name}</h3>
-                    <p><strong>Date:</strong> ${item.date}</p>
-                    <p>${item.description}</p>
-                `;
-            } else if (type === 'game') {
-                content = `
-                    <img src="${item.logoUrl || 'placeholder-game.jpg'}" alt="${item.name}">
-                    <h3>${item.name}</h3>
-                    <p><strong>Type:</strong> ${item.type}</p>
-                    <p>${item.description}</p>
-                `;
+        // Display items in a list
+        function displayItems(items, container, type) {
+            container.innerHTML = ''; // Clear existing content
+            if (!items || items.length === 0) {
+                container.innerHTML = '<p>No items found.</p>';
+                return;
             }
 
-            itemDiv.innerHTML = content;
-            container.appendChild(itemDiv);
-        });
-    }
+            items.slice(0, 9).forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.classList.add('item');
+                itemDiv.innerHTML = `
+                    <img src="${item.logoUrl || item.imageUrl || 'placeholder.jpg'}" alt="${item.name}">
+                    <h3>${item.name}</h3>
+                    <p><strong>${type === 'business' ? 'Category' : type === 'event' ? 'Date' : 'Type'}:</strong> ${item.category || item.date || item.type}</p>
+                    <p>${item.description}</p>
+                `;
+                container.appendChild(itemDiv);
+            });
+        }
 
-    // Initialize page content
-    document.addEventListener('DOMContentLoaded', () => {
-        fetchBusinesses();
-        fetchEvents();
-        fetchGames();
-    });
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData(`${businessApiBase}/all?page=0&size=9`, 'businessList', 'business');
+            fetchData(`${eventApiBase}?page=0&size=9`, 'eventList', 'event');
+            fetchData(`${gameApiBase}?page=0&size=9`, 'gameList', 'game');
+        });
 </script>
 </body>
 </html>
